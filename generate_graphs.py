@@ -1,9 +1,32 @@
+import mplfinance as mpf
 import pandas as pd
-from generate_graph import generate_graph
-from download_stock_data import download_stock_data
 from pandas.tseries.offsets import CustomBusinessDay
 from pandas.tseries.holiday import USFederalHolidayCalendar
 import random
+import setup
+from utils import clear_and_create_folder
+
+def generate_graph(data, output_path):
+    # Create a copy of the DataFrame
+    data = data.copy()
+
+    # Adds ma20 column
+    ma20dict = mpf.make_addplot(data['ma20'])
+
+    # Create a candlestick graph with the custom style and volume, and save it as an image
+    mpf.plot(data,
+            type='candle',
+            #  mav=2,
+            addplot=ma20dict,
+            style='yahoo',
+            figratio=(1,1),
+            volume=True,
+            # tight_layout=True,
+            axisoff=True,
+            savefig=dict(fname=output_path,bbox_inches="tight"),
+            update_width_config=dict(candle_linewidth=5)
+            )
+
 
 def generate_data(type, start_date, end_date, ticker_symbol):
     # Read the CSV data
@@ -69,3 +92,26 @@ def generate_data(type, start_date, end_date, ticker_symbol):
             
         # Generate the graph
         generate_graph(group, f"output/{output_type}/{trend}/{earliest_date}__{ticker_symbol}")
+
+
+"""--- PREPARES THE FOLDERS ---"""
+folders = [
+    "output/train/increasing",
+    "output/train/decreasing",
+    "output/test/increasing",
+    "output/test/decreasing",
+    "output/validate/increasing",
+    "output/validate/decreasing",
+]
+
+for folder in folders:
+    clear_and_create_folder(folder)
+
+
+"""--- GENERATES THE GRAPHS ---"""
+for ticker_symbol in setup.ticker_symbol_list:
+    # Generate training and validation data
+    generate_data('train', setup.train_start_date, setup.train_end_date, ticker_symbol)
+
+    # Generate testing data
+    generate_data('test', setup.test_start_date, setup.test_end_date, ticker_symbol)

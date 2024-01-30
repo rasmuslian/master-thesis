@@ -10,17 +10,10 @@ def clear_folder(folder):
         except Exception as e:
             print(e)
 
-def prepare_folders():
-    folders = [
-        "output/train/increasing",
-        "output/train/decreasing",
-        "output/test/increasing",
-        "output/test/decreasing",
-        "output/validate/increasing",
-        "output/validate/decreasing",
-    ]
+def create_folder(folder):
+    pathlib.Path(folder).mkdir(parents=True, exist_ok=True)
 
-    for folder in folders:
-        pathlib.Path(folder).mkdir(parents=True, exist_ok=True)
-        clear_folder(folder)
-    
+def clear_and_create_folder(folder):
+    create_folder(folder)
+    clear_folder(folder)
+

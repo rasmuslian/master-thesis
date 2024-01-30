@@ -16,3 +16,13 @@ ticker_symbol_list = [
     'CSCO',
     'PEP',
 ]
+training_data_name = 'usa'
+
+# Training model params
+pretrained_model_name = 'efficientnet_b0'
+num_epochs = 2
+batch_size = 32
+learning_rate = 0.001
+
+# Test model
+test_model_name = 'model_jan30_usa_efficientnet_b0_ep2_bs32_lr0001'

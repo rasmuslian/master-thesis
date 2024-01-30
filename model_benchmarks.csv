@@ -1,0 +1,2 @@
+model_name,accuracy,random_accuracy
+model_jan30_usa_efficientnet_b0_ep2_bs32_lr0001,22,23
