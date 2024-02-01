@@ -70,7 +70,26 @@ class StockGraphClassifer(nn.Module):
         self.base_model = timm.create_model(pretrained_model_name, pretrained=True)
         self.features = nn.Sequential(*list(self.base_model.children())[:-1])
 
-        enet_out_size = 1280
+        # enet_out_size = 1280
+
+        match setup.pretrained_model_name:
+            case 'efficientnet_b0':
+                enet_out_size = 1280
+            case 'efficientnet_b1':
+                enet_out_size = 1280
+            case 'efficientnet_b2':
+                enet_out_size = 1408
+            case 'efficientnet_b3':
+                enet_out_size = 1536
+            case 'efficientnet_b4':
+                enet_out_size = 1792
+            case 'efficientnet_b5':
+                enet_out_size = 2048
+            case 'efficientnet_b6':
+                enet_out_size = 2304
+            case 'efficientnet_b7' | 'tf_efficientnet_b7_ns':
+                enet_out_size = 2560          
+
         # Make a classifier
         self.classifier = nn.Sequential(
             nn.Flatten(),
@@ -98,6 +117,18 @@ learning_rate = setup.learning_rate
 optimizer = optim.Adam(model.parameters(), lr=learning_rate) # lr = learning rate
 
 def train_the_model():
+    """--- SAVES MODEL ---"""
+    def get_model_name():
+        # Save todays date in a variable, in the format of jan01, lowercase
+        today = pd.Timestamp.today().strftime("%b%d").lower()
+        return f"model_{today}_{setup.training_data_name}_{pretrained_model_name}_ep{num_epochs}_bs{batch_size}_lr{learning_rate}".replace('.', '')
+    
+    def save_model(model):
+        create_folder('models')
+        model_name = get_model_name()
+        torch.save(model.state_dict(), f"models/{model_name}.pt")
+        print(f"Model saved as {model_name}.pt")
+
     for epoch in range(num_epochs):
         # Training phase
         model.train()
@@ -130,23 +161,17 @@ def train_the_model():
         validate_losses.append(val_loss)
         print(f"Epoch {epoch+1}/{num_epochs} - Train loss: {train_loss}, Validation loss: {val_loss}")
 
-    # Visualize the loss over epochs
-    # plt.plot(train_losses, label='Training loss')
-    # plt.plot(validate_losses, label='Validation loss')
-    # plt.legend()
-    # plt.title("Loss over epochs")
-    # plt.show()
-        
-    """--- SAVES MODEL ---"""
-    def get_model_name():
-        # Save todays date in a variable, in the format of jan01, lowercase
-        today = pd.Timestamp.today().strftime("%b%d").lower()
-        return f"model_{today}_{setup.training_data_name}_{pretrained_model_name}_ep{num_epochs}_bs{batch_size}_lr{learning_rate}".replace('.', '')
+        # If the validation loss is lower than the previous lowest, save the model
+        if epoch == 0 or val_loss < min(validate_losses[:-1]):
+            save_model(model)
 
-    create_folder('models')
-    model_name = get_model_name()
-    torch.save(model.state_dict(), f"models/{model_name}.pt")
-    print(f"Model saved as {model_name}.pt")
+
+    # Visualize the loss over epochs
+    plt.plot(train_losses, label='Training loss')
+    plt.plot(validate_losses, label='Validation loss')
+    plt.legend()
+    plt.title("Loss over epochs")
+    plt.show()
 
 
 """--- EVALUATION ---"""
@@ -172,7 +197,7 @@ def test_model():
     model.eval()
 
     score = 0
-    for image_path, label in train_dataset.data.imgs:
+    for image_path, label in test_dataset.data.imgs:
         original_image, image_tensor = preprocess_image(image_path, transform)
         probabilities = predict(model, image_tensor, device)
         predicted_class = target_to_class[np.argmax(probabilities)]
@@ -182,9 +207,11 @@ def test_model():
     
     # Gets random result benchmark
     rand_score = 0
-    for image_path, label in train_dataset.data.imgs:
+    for image_path, label in test_dataset.data.imgs:
         rand_score += 1 if random.random() < 0.5 else 0
 
-    score = score / len(train_dataset)
-    rand_score = rand_score / len(train_dataset)
+    score = score / len(test_dataset)
+    rand_score = rand_score / len(test_dataset)
     return score, rand_score
+
+# def predict_graph():

@@ -19,10 +19,10 @@ ticker_symbol_list = [
 training_data_name = 'usa'
 
 # Training model params
-pretrained_model_name = 'efficientnet_b0'
-num_epochs = 2
+pretrained_model_name = 'tf_efficientnet_b7_ns'
+num_epochs = 1
 batch_size = 32
 learning_rate = 0.001
 
 # Test model
-test_model_name = 'model_jan30_usa_efficientnet_b0_ep2_bs32_lr0001'
+test_model_name = 'model_feb01_usa_tf_efficientnet_b7_ns_ep1_bs32_lr0001'

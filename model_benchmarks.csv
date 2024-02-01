@@ -1,2 +1,7 @@
-model_name,accuracy,random_accuracy
-model_jan30_usa_efficientnet_b0_ep2_bs32_lr0001,22,23
+model_name,accuracy,random_accuracy,benchmark_date
+model_jan30_usa_efficientnet_b0_ep2_bs32_lr0001,49.06,53.96,2024-02-01 11:19:35
+model_feb01_usa_efficientnet_b0_ep10_bs32_lr0001,55.85,53.400000000000006,2024-02-01 11:20:57
+model_feb01_usa_efficientnet_b3_ep10_bs32_lr0001,58.68,53.400000000000006,2024-02-01 15:10:31
+model_feb01_usa_efficientnet_b3_ep50_bs32_lr0001,59.81,49.81,2024-02-01 15:11:30
+model_feb01_usa_efficientnet_b7_ep2_bs32_lr0001,59.81,53.02,2024-02-01 15:49:13
+model_feb01_usa_tf_efficientnet_b7_ns_ep1_bs32_lr0001,60.57,49.62,2024-02-01 16:10:31
