@@ -4,4 +4,7 @@ model_feb01_usa_efficientnet_b0_ep10_bs32_lr0001,55.85,53.400000000000006,2024-0
 model_feb01_usa_efficientnet_b3_ep10_bs32_lr0001,58.68,53.400000000000006,2024-02-01 15:10:31
 model_feb01_usa_efficientnet_b3_ep50_bs32_lr0001,59.81,49.81,2024-02-01 15:11:30
 model_feb01_usa_efficientnet_b7_ep2_bs32_lr0001,59.81,53.02,2024-02-01 15:49:13
-model_feb01_usa_tf_efficientnet_b7_ns_ep1_bs32_lr0001,60.57,49.62,2024-02-01 16:10:31
+model_feb01_usa_tf_efficientnet_b7_ns_ep1_bs32_lr0001_prev,60.57,49.62,2024-02-01 16:10:31
+model_feb07_omx30_tf_efficientnet_b7_ns_ep22_bs32_lr0002,51.52,50.24,2024-02-07 09:41:09
+model_feb07_omx30_5m_tf_efficientnet_b7_ns_ep2_bs32_lr0001,52.16,50.73,2024-02-07 14:47:19
+model_feb01_usa_tf_efficientnet_b7_ns_ep1_bs32_lr0001,52.2,50.77,2024-02-07 15:17:22

@@ -40,9 +40,9 @@ transform = transforms.Compose([
     transforms.ToTensor(),
 ])
 
-train_folder = 'output/train/'
-valid_folder = 'output/validate/'
-test_folder = 'output/test/'
+train_folder = 'stock_graphs/train/'
+valid_folder = 'stock_graphs/validate/'
+test_folder = 'stock_graphs/test/'
 
 train_dataset = StockGraphDataset(train_folder, transform)
 val_dataset = StockGraphDataset(valid_folder, transform)
@@ -102,7 +102,7 @@ class StockGraphClassifer(nn.Module):
         output = self.classifier(x)
         return output
 
-num_epochs = setup.num_epochs
+num_epochs = setup.max_epochs
 train_losses, validate_losses = [], []
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -118,14 +118,16 @@ optimizer = optim.Adam(model.parameters(), lr=learning_rate) # lr = learning rat
 
 def train_the_model():
     """--- SAVES MODEL ---"""
-    def get_model_name():
-        # Save todays date in a variable, in the format of jan01, lowercase
-        today = pd.Timestamp.today().strftime("%b%d").lower()
-        return f"model_{today}_{setup.training_data_name}_{pretrained_model_name}_ep{num_epochs}_bs{batch_size}_lr{learning_rate}".replace('.', '')
+    def get_model_name(actual_epochs):
+        # Save todays date in a variable, in the format of jan01-1312, lowercase
+        today = pd.Timestamp.today().strftime("%b%d-%H%M").lower()
+        # Get 6 letter random string
+        random_string = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz', k=6))
+        return f"model_{random_string}__actep{actual_epochs}_{today}_{setup.train_tickerslist}_{setup.data_interval}_{pretrained_model_name}_maxep{num_epochs}_bs{batch_size}_lr{learning_rate}".replace('.', '')
     
-    def save_model(model):
+    def save_model(model, actual_epochs):
         create_folder('models')
-        model_name = get_model_name()
+        model_name = get_model_name(actual_epochs)
         torch.save(model.state_dict(), f"models/{model_name}.pt")
         print(f"Model saved as {model_name}.pt")
 
@@ -163,7 +165,7 @@ def train_the_model():
 
         # If the validation loss is lower than the previous lowest, save the model
         if epoch == 0 or val_loss < min(validate_losses[:-1]):
-            save_model(model)
+            save_model(model, epoch+1)
 
 
     # Visualize the loss over epochs
@@ -214,4 +216,13 @@ def test_model():
     rand_score = rand_score / len(test_dataset)
     return score, rand_score
 
-# def predict_graph():
+def predict_graph(graph_image_path):
+    # Load the model
+    model.load_state_dict(torch.load(f"models/{setup.test_model_name}.pt"))
+    model.eval()
+    
+    original_image, image_tensor = preprocess_image(graph_image_path, transform)
+    probabilities = predict(model, image_tensor, device)
+    predicted_class = target_to_class[np.argmax(probabilities)]
+
+    return predicted_class, probabilities

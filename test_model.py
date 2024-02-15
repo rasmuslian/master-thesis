@@ -12,29 +12,56 @@ percentage_rand_score = round(rand_score, 4)*100
 print(f"Accuracy: {percentage_score}%")
 print(f"Random Accuracy: {percentage_rand_score}%")
 
+# Create benchmarks folder if it does not exist
+if not os.path.exists('benchmarks'):
+    os.makedirs('benchmarks')
+benchmark_filepath = "benchmarks/model_benchmarks.csv"
 
-benchmark_filepath = "model_benchmarks.csv"
 # If the file does not exist, create it
 if not os.path.isfile(benchmark_filepath):
     # Create the file
-    df = pd.DataFrame(columns=['model_name', 'accuracy', 'random_accuracy', 'benchmark_date'])
+    df = pd.DataFrame(columns=[
+        'model_name',
+        'accuracy',
+        'random_accuracy',
+        'train_data',
+        'test_data',
+        'train_graph_feat',
+        'test_graph_feat',
+        'epochs',
+        'benchmark_date'
+        ])
     df.to_csv(benchmark_filepath, index=False)    
 
 # Reads the file
 df = pd.read_csv(benchmark_filepath)
 
-# Todays date in 2018-01-01 12:00:00 format
-benchmark_date = pd.Timestamp.today().strftime("%Y-%m-%d %H:%M:%S")
 
-# If a row with the same model_name exists, overwrite
-if setup.test_model_name in df['model_name'].values:
-    df.loc[df['model_name'] == setup.test_model_name, 'accuracy'] = percentage_score
-    df.loc[df['model_name'] == setup.test_model_name, 'random_accuracy'] = percentage_rand_score
-    df.loc[df['model_name'] == setup.test_model_name, 'benchmark_date'] = benchmark_date
-else:
-    # Adds the new model to the dataframe
-    new_row = pd.DataFrame({'model_name': [setup.test_model_name], 'accuracy': [percentage_score], 'random_accuracy': [percentage_rand_score], 'benchmark_date': [benchmark_date]})
-    df = pd.concat([df, new_row], ignore_index=True)
+# Find the element that starts with 'act' and get the number of epochs
+split_name = setup.test_model_name.split('_')
+actual_epochs = [s for s in split_name if s.startswith('act')][0][3:]
+
+# Calculate some metrics
+benchmark_date = pd.Timestamp.today().strftime("%Y-%m-%d %H:%M:%S")
+train_data_metric = f"{setup.train_tickerslist}_{setup.data_interval}/grp{setup.data_groupby}/ma{setup.ma_period}_{setup.train_start_date}to{setup.train_end_date}"
+test_data_metric = f"{setup.test_tickerslist}_{setup.test_start_date}to{setup.test_end_date}"
+train_graph_feat = f"{setup.data_interval}/grp{setup.data_groupby}/ma{setup.ma_period}"
+test_graph_feat = f"{setup.data_interval}/grp{setup.data_groupby}/ma{setup.ma_period}"
+epoch_metric = f"max{setup.max_epochs}act{actual_epochs}"
+
+# Adds the new model to the dataframe
+new_row = pd.DataFrame({
+    'model_name': [setup.test_model_name],
+    'accuracy': [percentage_score],
+    'random_accuracy': [percentage_rand_score],
+    'train_data': [train_data_metric],
+    'test_data': [test_data_metric],
+    'train_graph_feat': [train_graph_feat],
+    'test_graph_feat': [test_graph_feat],
+    'epochs': [epoch_metric],
+    'benchmark_date': [benchmark_date]
+    })
+df = pd.concat([df, new_row], ignore_index=True)
 
 # Saves the dataframe to the file
 df.to_csv(benchmark_filepath, index=False)
