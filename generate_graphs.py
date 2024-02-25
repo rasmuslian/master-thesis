@@ -26,7 +26,7 @@ def generate_graph(data, output_path):
             # tight_layout=True,
             axisoff=True,
             savefig=dict(fname=output_path,bbox_inches="tight"),
-            # update_width_config=dict(candle_linewidth=5)
+            update_width_config=dict(candle_linewidth=5)
             )
 
 
