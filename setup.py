@@ -14,7 +14,7 @@ ma_period = 20
 
 # Training model params
 pretrained_model_name = 'tf_efficientnet_b7_ns'
-max_epochs = 2
+max_epochs = 20
 batch_size = 32
 learning_rate = 0.001
 
