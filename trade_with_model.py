@@ -3,9 +3,10 @@ from model import predict_graph
 import pandas as pd
 from pandas.tseries.offsets import CustomBusinessDay
 from pandas.tseries.holiday import USFederalHolidayCalendar
+import setup
 
 # Get all images in the 'trade' folder and loop over them
-trade_folder = 'stock_graphs/trade/'
+trade_folder = f"stock_graphs/{setup.test_tickerslist}/trade/"
 trade_images = os.listdir(trade_folder)
 
 entered_position_amount = 0 # USD

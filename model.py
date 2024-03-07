@@ -40,9 +40,9 @@ transform = transforms.Compose([
     transforms.ToTensor(),
 ])
 
-train_folder = 'stock_graphs/train/'
-valid_folder = 'stock_graphs/validate/'
-test_folder = 'stock_graphs/test/'
+train_folder = f"stock_graphs/{setup.train_tickerslist}/train/"
+valid_folder = f"stock_graphs/{setup.train_tickerslist}/validate/"
+test_folder = f"stock_graphs/{setup.test_tickerslist}/test/"
 
 train_dataset = StockGraphDataset(train_folder, transform)
 val_dataset = StockGraphDataset(valid_folder, transform)
@@ -207,10 +207,11 @@ def test_model():
         if predicted_class == target_to_class[label]:
             score += 1
     
-    # Gets random result benchmark
+    # Gets 'always predict increasing' result benchmark
     rand_score = 0
     for image_path, label in test_dataset.data.imgs:
-        rand_score += 1 if random.random() < 0.5 else 0
+        if label == 'increasing':
+            rand_score += 1
 
     score = score / len(test_dataset)
     rand_score = rand_score / len(test_dataset)

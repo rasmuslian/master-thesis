@@ -5,7 +5,7 @@ from pandas.tseries.offsets import CustomBusinessDay
 from pandas.tseries.holiday import USFederalHolidayCalendar
 import random
 import setup
-from utils import clear_and_create_folder
+from utils import clear_and_create_folder, create_folder
 import json
 
 def generate_graph(data, output_path):
@@ -31,8 +31,13 @@ def generate_graph(data, output_path):
 
 
 def generate_data(type, start_date, end_date, ticker_symbol):
+    if type == 'train':
+        tickerlist = setup.train_tickerslist
+    else:
+        tickerlist = setup.test_tickerslist
+
     # Read the CSV data
-    data = pd.read_csv(f"stock_data/{type}/{ticker_symbol}.csv")
+    data = pd.read_csv(f"stock_data/{type}/{tickerlist}/{ticker_symbol}.csv")
 
     # Convert 'Datetime' to datetime format
     match setup.data_interval:
@@ -94,24 +99,29 @@ def generate_data(type, start_date, end_date, ticker_symbol):
             output_type = 'validate'
             
         # Generate the graph
+        if type == 'train':
+            tickerlist = setup.train_tickerslist
+        else:
+            tickerlist = setup.test_tickerslist
+
         filename = f"{interval}__{ticker_symbol}.png"
-        output_path = f"stock_graphs/{output_type}/{trend}/{filename}"
+        output_path = f"stock_graphs/{tickerlist}/{output_type}/{trend}/{filename}"
         generate_graph(group, output_path)
         # If test, copy the output file to the 'trade' folder
         if(type == 'test'):
-            trade_output_path = f"stock_graphs/trade/{filename}"
+            trade_output_path = f"stock_graphs/{tickerlist}/trade/{filename}"
             copyfile(output_path, trade_output_path)
 
 
 """--- PREPARES THE FOLDERS ---"""
 folders = [
-    "stock_graphs/train/increasing",
-    "stock_graphs/train/decreasing",
-    "stock_graphs/test/increasing",
-    "stock_graphs/test/decreasing",
-    "stock_graphs/validate/increasing",
-    "stock_graphs/validate/decreasing",
-    "stock_graphs/trade",
+    f"stock_graphs/{setup.train_tickerslist}/train/increasing",
+    f"stock_graphs/{setup.train_tickerslist}/train/decreasing",
+    f"stock_graphs/{setup.test_tickerslist}/test/increasing",
+    f"stock_graphs/{setup.test_tickerslist}/test/decreasing",
+    f"stock_graphs/{setup.train_tickerslist}/validate/increasing",
+    f"stock_graphs/{setup.train_tickerslist}/validate/decreasing",
+    f"stock_graphs/{setup.test_tickerslist}/trade",
 ]
 
 for folder in folders:

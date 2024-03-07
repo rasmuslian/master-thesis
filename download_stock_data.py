@@ -1,20 +1,24 @@
 import yfinance as yf
 import setup
-from utils import clear_and_create_folder
+from utils import clear_and_create_folder, create_folder
 import json
 
 def download_stock_data(type, start_date, end_date, ticker_symbol):
     # Download stock data
     data = yf.download(ticker_symbol, start=start_date, end=end_date, interval=setup.data_interval)
 
+    if type == 'train':
+        tickerlist = setup.train_tickerslist
+    else:
+        tickerlist = setup.test_tickerslist
+
     # Save data to a CSV file
-    data.to_csv(f"stock_data/{type}/{ticker_symbol}.csv")
+    data.to_csv(f"stock_data/{type}/{tickerlist}/{ticker_symbol}.csv")
 
 
-# Create the 'stock_data' folder if it doesn't exist
-clear_and_create_folder("stock_data")
-clear_and_create_folder("stock_data/train")
-clear_and_create_folder("stock_data/test")
+# Prepares the folders
+clear_and_create_folder(f"stock_data/train/{setup.train_tickerslist}")
+clear_and_create_folder(f"stock_data/test/{setup.test_tickerslist}")
 
 
 # Get training ticker list
