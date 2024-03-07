@@ -116,7 +116,20 @@ criterion = nn.CrossEntropyLoss()
 learning_rate = setup.learning_rate
 optimizer = optim.Adam(model.parameters(), lr=learning_rate) # lr = learning rate
 
-def train_the_model():
+def train_the_model(resume):
+    global train_losses, validate_losses
+    start_epoch = 1
+
+    """--- RESUME TRAINING IF SET ---"""
+    if resume:
+        checkpoint = torch.load(f"model_training_checkpoints/{resume}.pt")
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        start_epoch = checkpoint['epoch'] + 1
+        train_losses = checkpoint['train_loss']
+        validate_losses = checkpoint['val_loss']
+        print(f"Resuming training from epoch {start_epoch}")
+
     """--- SAVES MODEL ---"""
     def get_model_name(actual_epochs):
         # Save todays date in a variable, in the format of jan01-1312, lowercase
@@ -130,8 +143,20 @@ def train_the_model():
         model_name = get_model_name(actual_epochs)
         torch.save(model.state_dict(), f"models/{model_name}.pt")
         print(f"Model saved as {model_name}.pt")
+    
+    def save_model_training_checkpoint(EPOCH, TRAIN_LOSS, VAL_LOSS):
+        create_folder('model_training_checkpoints')
+        model_checkpoint_name = f"{pd.Timestamp.today().strftime('%b%d-%H%M').lower()}-ep{EPOCH}"
+        torch.save({
+            'epoch': EPOCH,
+            'model_state_dict': model.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
+            'train_loss': TRAIN_LOSS,
+            'val_loss': VAL_LOSS,
+            }, f"model_training_checkpoints/{model_checkpoint_name}.pt" )
+        print(f"Checkpoint saved as {model_checkpoint_name}.pt")
 
-    for epoch in range(num_epochs):
+    for epoch in range(start_epoch, num_epochs + 1):
         # Training phase
         model.train()
         running_loss = 0.0
@@ -161,11 +186,13 @@ def train_the_model():
                 running_loss += loss.item() * labels.size(0)
         val_loss = running_loss / len(val_loader.dataset)
         validate_losses.append(val_loss)
-        print(f"Epoch {epoch+1}/{num_epochs} - Train loss: {train_loss}, Validation loss: {val_loss}")
+        print(f"Epoch {epoch}/{num_epochs} - Train loss: {train_loss}, Validation loss: {val_loss}")
 
         # If the validation loss is lower than the previous lowest, save the model
-        if epoch == 0 or val_loss < min(validate_losses[:-1]):
-            save_model(model, epoch+1)
+        if epoch == 1 or val_loss < min(validate_losses[:-1]):
+            save_model(model, epoch)
+        
+        save_model_training_checkpoint(epoch, train_losses, validate_losses)
 
 
     # Visualize the loss over epochs
