@@ -39,12 +39,12 @@ df = pd.read_csv(benchmark_filepath)
 
 # Find the element that starts with 'act' and get the number of epochs
 split_name = setup.test_model_name.split('_')
-actual_epochs = [s for s in split_name if s.startswith('act')][0][3:]
+actual_epochs = [s for s in split_name if s.startswith('actep')][0][3:]
 
 # Calculate some metrics
 benchmark_date = pd.Timestamp.today().strftime("%Y-%m-%d %H:%M:%S")
-train_data_metric = f"{setup.train_tickerslist}_{setup.data_interval}/grp{setup.data_groupby}/ma{setup.ma_period}_{setup.train_start_date}to{setup.train_end_date}"
-test_data_metric = f"{setup.test_tickerslist}_{setup.test_start_date}to{setup.test_end_date}"
+train_data_metric = f"{setup.train_tickerslist} {setup.train_start_date}_{setup.train_end_date}"
+test_data_metric = f"{setup.test_tickerslist} {setup.test_start_date}_{setup.test_end_date}"
 train_graph_feat = f"{setup.data_interval}/grp{setup.data_groupby}/ma{setup.ma_period}"
 test_graph_feat = f"{setup.data_interval}/grp{setup.data_groupby}/ma{setup.ma_period}"
 epoch_metric = f"max{setup.max_epochs}act{actual_epochs}"

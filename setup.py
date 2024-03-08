@@ -15,10 +15,10 @@ ma_period = 20
 # Training model params
 pretrained_model_name = 'efficientnet_b4'
 # pretrained_model_name = 'tf_efficientnet_b7_ns'
-max_epochs = 300
-# batch_size = 128
+max_epochs = 1000
+batch_size = 128
 learning_rate = 0.001
 
 # Test model
-test_model_name = 'model_feb01_usa_tf_efficientnet_b7_ns_act1_bs32_lr0001'
+test_model_name = 'model_epkazv__actep2_mar07-2237_usa10_1d_efficientnet_b4_maxep1000_bs128_lr0001'
 

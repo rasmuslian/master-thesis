@@ -15,7 +15,7 @@ import numpy as np
 import sys
 from tqdm import tqdm
 import setup
-from utils import create_folder
+from utils import create_folder, clear_and_create_folder
 
 
 """--- DATASET ---"""
@@ -129,6 +129,8 @@ def train_the_model(resume):
         train_losses = checkpoint['train_loss']
         validate_losses = checkpoint['val_loss']
         print(f"Resuming training from epoch {start_epoch}")
+    else:
+        clear_and_create_folder('model_training_checkpoints')
 
     """--- SAVES MODEL ---"""
     def get_model_name(actual_epochs):
@@ -145,7 +147,6 @@ def train_the_model(resume):
         print(f"Model saved as {model_name}.pt")
     
     def save_model_training_checkpoint(EPOCH, TRAIN_LOSS, VAL_LOSS):
-        create_folder('model_training_checkpoints')
         model_checkpoint_name = f"{pd.Timestamp.today().strftime('%b%d-%H%M').lower()}-ep{EPOCH}"
         torch.save({
             'epoch': EPOCH,
@@ -237,7 +238,7 @@ def test_model():
     # Gets 'always predict increasing' result benchmark
     rand_score = 0
     for image_path, label in test_dataset.data.imgs:
-        if label == 'increasing':
+        if label == 1:
             rand_score += 1
 
     score = score / len(test_dataset)
