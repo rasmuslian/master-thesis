@@ -7,7 +7,6 @@
 You find available lists of tickers in ticker_lists/ or you can create your own.
 
 <br />
-<br />
 
 **1. Download stock data from Yahoo Finance**  
 Downloads stock data into stock_data/
