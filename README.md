@@ -31,7 +31,7 @@ Finished model is saved into models/ .
 <br />
 <br />
 
-**4. Test the model**
+**4. Test the model**  
 Tests the model from setup.test_model_name . setup.pretrained_model_name needs to correspond to the same pretrained model as the model that is tested. You find the model name inside models/ .
 
 `python test_model.py`
