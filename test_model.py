@@ -29,6 +29,8 @@ if not os.path.isfile(benchmark_filepath):
         'train_graph_feat',
         'test_graph_feat',
         'epochs',
+        'batch_size',
+        'learning_rate',
         'benchmark_date'
         ])
     df.to_csv(benchmark_filepath, index=False)    
@@ -59,6 +61,8 @@ new_row = pd.DataFrame({
     'train_graph_feat': [train_graph_feat],
     'test_graph_feat': [test_graph_feat],
     'epochs': [epoch_metric],
+    'batch_size': [setup.batch_size],
+    'learning_rate': [setup.learning_rate],
     'benchmark_date': [benchmark_date]
     })
 df = pd.concat([df, new_row], ignore_index=True)

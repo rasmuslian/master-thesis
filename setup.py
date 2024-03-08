@@ -13,10 +13,9 @@ data_groupby = 5
 ma_period = 20
 
 # Training model params
-pretrained_model_name = 'efficientnet_b4'
-# pretrained_model_name = 'tf_efficientnet_b7_ns'
-max_epochs = 1000
-batch_size = 128
+pretrained_model_name = 'tf_efficientnet_b7_ns'
+max_epochs = 400
+batch_size = 32
 learning_rate = 0.001
 
 # Test model
