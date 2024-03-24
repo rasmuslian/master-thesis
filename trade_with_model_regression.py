@@ -41,8 +41,6 @@ for ticker in tickers:
     # Remove last group
     grouped_data.pop()
 
-    print(grouped_data)
-
     for group in grouped_data:
         # Get earliest datetime and latest date in the group, include hours and minute
         earliest_date = group.index[0].strftime("%Y-%m-%d")
@@ -55,12 +53,16 @@ for ticker in tickers:
         # Predict the graph
         prediction = predict_graph(f"{trade_folder}/{interval}__{ticker}.png")
 
+        # Dont trade if prediction is too close to 0
+        if abs(prediction) < 0.008:
+            print(f"Prediction too close to 0: {prediction}")
+            continue
+
         # Check if long or short
         if prediction == 0: continue
         long_or_short = 'long' if prediction > 0 else 'short'
         
         # Calculate the trade
-        prediction = prediction * 100
         if long_or_short == 'long':
             trade_return = (exit_price - enter_price) / enter_price
         else:
@@ -68,7 +70,8 @@ for ticker in tickers:
 
         # Calculate the portfolio percentage
         portfolio_percentage = portfolio_percentage * (1 + trade_return)
+        total_trades += 1
 
-        print(f"{interval}, {'{:.2f}'.format(enter_price)}, {'{:.2f}'.format(exit_price)}, {'{:.2f}'.format(trade_return * 100)}%")
+        print(f"{interval} {'{:.2f}'.format(enter_price)} {'{:.2f}'.format(exit_price)}. PREDICTED: {'{:.2f}'.format(prediction)}% - {long_or_short.upper()} TRADE: {'{:.2f}'.format(trade_return * 100)}%")
     
-    print(f"Portfolio percentage: {'{:.2f}'.format((portfolio_percentage - 1) * 100)}%")
+    print(f"Portfolio percentage: {'{:.2f}'.format((portfolio_percentage - 1) * 100)}%, Total trades: {total_trades}")

@@ -224,7 +224,7 @@ def predict(model, image_tensor, device):
         image_tensor = image_tensor.to(device)
         output = model(image_tensor)
         predicted_value = output.item()  # Converts the tensor to a Python scalar
-    return predicted_value
+    return predicted_value / 100  # Convert the percentage to decimal form
 
 # Test all test-images
 def test_model():
