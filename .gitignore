@@ -1,5 +1,6 @@
 __pycache__
 stock_graphs
+stock_graphs_regression
 stock_data
 models
 model_training_checkpoints
