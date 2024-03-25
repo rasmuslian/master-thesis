@@ -1,3 +1,0 @@
-model_name,rmse,baseline_rmse,train_data,test_data,train_graph_feat,test_graph_feat,pretrained_model_name,epochs,batch_size,learning_rate,benchmark_date
-model_vmwnua__actep6_mar24-1410_test1_1d_efficientnet_b0_maxep10_bs32_lr0001,2.2770089399135784,2.1423999999999994,test1 2021-01-01_2022-12-31,test2 2023-01-01_2023-12-31,1d/grp5/ma20,1d/grp5/ma20,efficientnet_b0,max10actep6,32,0.001,2024-03-24 15:05:57
-model_hhloyb__actep3_mar24-1509_test1_1d_tf_efficientnet_b7_ns_maxep10_bs32_lr0001,2.1428910787900293,2.1423999999999994,test1 2021-01-01_2022-12-31,test2 2023-01-01_2023-12-31,1d/grp5/ma20,1d/grp5/ma20,tf_efficientnet_b7_ns,max10actep3,32,0.001,2024-03-24 15:25:43

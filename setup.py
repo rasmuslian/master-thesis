@@ -1,5 +1,6 @@
 # Data setup
 train_start_date = '2021-01-01'
+val_cutoff_date = '2022-01-01'
 train_end_date = '2022-12-31'
 
 test_start_date = '2023-01-01'

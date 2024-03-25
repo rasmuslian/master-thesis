@@ -1,6 +1,7 @@
 from shutil import copyfile
 import mplfinance as mpf
 import pandas as pd
+import datetime
 import random
 import setup
 from utils import clear_and_create_folder, create_folder
@@ -63,8 +64,6 @@ def generate_data(type, start_date, end_date, ticker_symbol):
 
     loop_index = 0
 
-    print(grouped_data)
-
     # Loop through the grouped data
     for group in grouped_data:
         # Get earliest datetime and latest date in the group, include hours and minute
@@ -84,10 +83,14 @@ def generate_data(type, start_date, end_date, ticker_symbol):
         # Round period return to 2 decimal places. Ensure always two decimals, even if 0
         period_return = "{:.2f}".format(period_return * 100)
 
-        # Set output type. If train, pick 30% of the data for validation
+        # Set output type, and pick data for validation set.
         output_type = type
-        if(type == 'train' and random.random() < 0.3):
+
+        val_cutoff_datetime = datetime.datetime.strptime(setup.val_cutoff_date, '%Y-%m-%d')
+        earliest_datetime = datetime.datetime.strptime(earliest_date, '%Y-%m-%d')
+        if (type == 'train' and val_cutoff_datetime < earliest_datetime):
             output_type = 'validate'
+            print('Validate')
             
         # Generate the graph
         if type == 'train':
@@ -96,20 +99,20 @@ def generate_data(type, start_date, end_date, ticker_symbol):
             tickerlist = setup.test_tickerslist
 
         filename = f"{interval}__{period_return}__{ticker_symbol}.png"
-        output_path = f"stock_graphs_regression/{tickerlist}/{output_type}/{filename}"
+        output_path = f"stock_graphs/{tickerlist}/{output_type}/{filename}"
         generate_graph(group, output_path)
         # If test, copy the output file to the 'trade' folder
         if(type == 'test'):
-            trade_output_path = f"stock_graphs_regression/{tickerlist}/trade/{interval}__{ticker_symbol}.png"
+            trade_output_path = f"stock_graphs/{tickerlist}/trade/{interval}__{ticker_symbol}.png"
             copyfile(output_path, trade_output_path)
 
 
 """--- PREPARES THE FOLDERS ---"""
 folders = [
-    f"stock_graphs_regression/{setup.train_tickerslist}/train",
-    f"stock_graphs_regression/{setup.test_tickerslist}/test",
-    f"stock_graphs_regression/{setup.train_tickerslist}/validate",
-    f"stock_graphs_regression/{setup.test_tickerslist}/trade",
+    f"stock_graphs/{setup.train_tickerslist}/train",
+    f"stock_graphs/{setup.test_tickerslist}/test",
+    f"stock_graphs/{setup.train_tickerslist}/validate",
+    f"stock_graphs/{setup.test_tickerslist}/trade",
 ]
 
 for folder in folders:

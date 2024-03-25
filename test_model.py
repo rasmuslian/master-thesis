@@ -12,7 +12,7 @@ print(f"Model - RMSE: {'{:.2f}'.format(rmse)}")
 # Create benchmarks folder if it does not exist
 if not os.path.exists('benchmarks'):
     os.makedirs('benchmarks')
-benchmark_filepath = "benchmarks/model_benchmarks_regression.csv"
+benchmark_filepath = "benchmarks/model_benchmarks.csv"
 
 # If the file does not exist, create it
 if not os.path.isfile(benchmark_filepath):
