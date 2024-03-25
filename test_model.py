@@ -4,26 +4,23 @@ from model import test_model
 import pandas as pd
 import setup
 
-score, rand_score = test_model()
+rmse, baseline_rmse = test_model()
 
-percentage_score = round(score, 4)*100
-percentage_rand_score = round(rand_score, 4)*100
-
-print(f"Accuracy: {percentage_score}%")
-print(f"Random Accuracy: {percentage_rand_score}%")
+print(f"Baseline - RMSE: {'{:.2f}'.format(baseline_rmse)}")
+print(f"Model - RMSE: {'{:.2f}'.format(rmse)}")
 
 # Create benchmarks folder if it does not exist
 if not os.path.exists('benchmarks'):
     os.makedirs('benchmarks')
-benchmark_filepath = "benchmarks/model_benchmarks.csv"
+benchmark_filepath = "benchmarks/model_benchmarks_regression.csv"
 
 # If the file does not exist, create it
 if not os.path.isfile(benchmark_filepath):
     # Create the file
     df = pd.DataFrame(columns=[
         'model_name',
-        'accuracy',
-        'random_accuracy',
+        'rmse',
+        'baseline_rmse',
         'train_data',
         'test_data',
         'train_graph_feat',
@@ -55,8 +52,8 @@ epoch_metric = f"max{setup.max_epochs}act{actual_epochs}"
 # Adds the new model to the dataframe
 new_row = pd.DataFrame({
     'model_name': [setup.test_model_name],
-    'accuracy': [percentage_score],
-    'random_accuracy': [percentage_rand_score],
+    'rmse': [rmse],
+    'baseline_rmse': [baseline_rmse],
     'train_data': [train_data_metric],
     'test_data': [test_data_metric],
     'train_graph_feat': [train_graph_feat],

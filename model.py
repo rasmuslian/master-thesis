@@ -16,23 +16,35 @@ import sys
 from tqdm import tqdm
 import setup
 from utils import create_folder, clear_and_create_folder
+import os
 
 
 """--- DATASET ---"""
 
 class StockGraphDataset(Dataset):
     def __init__(self, data_dir, transform=None):
-        self.data = ImageFolder(data_dir, transform=transform)
-    
+        self.data_dir = data_dir
+        self.transform = transform
+        self.images = [img for img in os.listdir(data_dir) if img.endswith('.png')]  # Adjust the extension as needed
+        self.percentage_return = [float(img_name.split('__')[2]) for img_name in self.images]
+
     def __len__(self):
-        return len(self.data)
-    
+        return len(self.images)
+
     def __getitem__(self, idx):
-        return self.data[idx]
-    
-    @property
-    def classes(self):
-        return self.data.classes
+        img_name = self.images[idx]
+        image = Image.open(os.path.join(self.data_dir, img_name)).convert('RGB')
+        
+        # Extracting the percentage return from the filename
+        percentage_return = self.percentage_return[idx]
+
+        if self.transform:
+            image = self.transform(image)
+
+        # Convert the percentage_return to FloatTensor
+        percentage_return = torch.tensor(percentage_return, dtype=torch.float32)
+
+        return image, percentage_return
 
 # Transforms images into same size
 transform = transforms.Compose([
@@ -40,9 +52,9 @@ transform = transforms.Compose([
     transforms.ToTensor(),
 ])
 
-train_folder = f"stock_graphs/{setup.train_tickerslist}/train/"
-valid_folder = f"stock_graphs/{setup.train_tickerslist}/validate/"
-test_folder = f"stock_graphs/{setup.test_tickerslist}/test/"
+train_folder = f"stock_graphs_regression/{setup.train_tickerslist}/train/"
+valid_folder = f"stock_graphs_regression/{setup.train_tickerslist}/validate/"
+test_folder = f"stock_graphs_regression/{setup.test_tickerslist}/test/"
 
 train_dataset = StockGraphDataset(train_folder, transform)
 val_dataset = StockGraphDataset(valid_folder, transform)
@@ -54,17 +66,13 @@ train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True) # 
 val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
-# Get a dictionary associating target values with folder names
-target_to_class = {v: k for k, v in ImageFolder(train_folder).class_to_idx.items()}
-num_classes = len(target_to_class)
-
 
 """--- MODEL ---"""  
 
 pretrained_model_name = setup.pretrained_model_name
-class StockGraphClassifer(nn.Module):
+class StockGraphRegressor(nn.Module):
     def __init__(self):
-        super(StockGraphClassifer, self).__init__()
+        super(StockGraphRegressor, self).__init__()
         # Where we define all the parts of the model
         
         self.base_model = timm.create_model(pretrained_model_name, pretrained=True)
@@ -90,16 +98,14 @@ class StockGraphClassifer(nn.Module):
             case 'efficientnet_b7' | 'tf_efficientnet_b7_ns':
                 enet_out_size = 2560          
 
-        # Make a classifier
-        self.classifier = nn.Sequential(
+        self.regressor = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(enet_out_size, num_classes)
+            nn.Linear(enet_out_size, 1)
         )
-    
+
     def forward(self, x):
-        # Connect these parts and return the output
         x = self.features(x)
-        output = self.classifier(x)
+        output = self.regressor(x)
         return output
 
 num_epochs = setup.max_epochs
@@ -107,11 +113,11 @@ train_losses, validate_losses = [], []
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-model = StockGraphClassifer()
+model = StockGraphRegressor()
 model.to(device)
 
 # Loss function
-criterion = nn.CrossEntropyLoss()
+criterion = nn.MSELoss()
 # Optimizer
 learning_rate = setup.learning_rate
 optimizer = optim.Adam(model.parameters(), lr=learning_rate) # lr = learning rate
@@ -167,10 +173,10 @@ def train_the_model(resume):
             
             optimizer.zero_grad()
             outputs = model(images)
-            loss = criterion(outputs, labels)
+            loss = criterion(outputs, labels.unsqueeze(1))
             loss.backward()
             optimizer.step()
-            running_loss += loss.item() * labels.size(0)
+            running_loss += loss.item()
         train_loss = running_loss / len(train_loader.dataset)
         train_losses.append(train_loss)
         
@@ -183,8 +189,8 @@ def train_the_model(resume):
                 images, labels = images.to(device), labels.to(device)
             
                 outputs = model(images)
-                loss = criterion(outputs, labels)
-                running_loss += loss.item() * labels.size(0)
+                loss = criterion(outputs, labels.unsqueeze(1))
+                running_loss += loss.item()
         val_loss = running_loss / len(val_loader.dataset)
         validate_losses.append(val_loss)
         print(f"Epoch {epoch}/{num_epochs} - Train loss: {train_loss}, Validation loss: {val_loss}")
@@ -216,9 +222,9 @@ def predict(model, image_tensor, device):
     model.eval()
     with torch.no_grad():
         image_tensor = image_tensor.to(device)
-        outputs = model(image_tensor)
-        probabilities = torch.nn.functional.softmax(outputs, dim=1)
-    return probabilities.cpu().numpy().flatten()
+        output = model(image_tensor)
+        predicted_value = output.item()  # Converts the tensor to a Python scalar
+    return predicted_value / 100  # Convert the percentage to decimal form
 
 # Test all test-images
 def test_model():
@@ -226,24 +232,36 @@ def test_model():
     model.load_state_dict(torch.load(f"models/{setup.test_model_name}.pt"))
     model.eval()
 
-    score = 0
-    for image_path, label in test_dataset.data.imgs:
-        original_image, image_tensor = preprocess_image(image_path, transform)
-        probabilities = predict(model, image_tensor, device)
-        predicted_class = target_to_class[np.argmax(probabilities)]
-        print(f"Input: {image_path}, Label: {label}, Predicted: {predicted_class}, Probabilities: {probabilities}")
-        if predicted_class == target_to_class[label]:
-            score += 1
-    
-    # Gets 'always predict increasing' result benchmark
-    rand_score = 0
-    for image_path, label in test_dataset.data.imgs:
-        if label == 1:
-            rand_score += 1
+    error = 0
+    cumulative_return = 0
 
-    score = score / len(test_dataset)
-    rand_score = rand_score / len(test_dataset)
-    return score, rand_score
+    # for image_path, percentage_return in test_dataset:
+    for image_path, percentage_return in zip(test_dataset.images, test_dataset.percentage_return):
+        original_image, image_tensor = preprocess_image(f"stock_graphs_regression/{setup.test_tickerslist}/test/{image_path}", transform)
+        predicted_value = predict(model, image_tensor, device)
+        print(f"Input: {image_path}, Actual: {percentage_return}, Predicted: {predicted_value}")
+        error += abs(percentage_return - predicted_value)
+        cumulative_return += percentage_return
+    
+    average_return = cumulative_return / len(test_dataset)
+
+    # Calculate the average error
+    mean_error = error / len(test_dataset)
+    mse = mean_error ** 2
+    rmse = mse ** 0.5
+
+    # Calculate 'baseline' errors
+    baseline_error = 0
+    for image_path, percentage_return in zip(test_dataset.images, test_dataset.percentage_return):
+        baseline_error += abs(percentage_return - average_return)
+
+    baseline_mean_error = baseline_error / len(test_dataset)
+    baseline_mse = baseline_mean_error ** 2
+    baseline_rmse = baseline_mse ** 0.5
+        
+
+    print(f"Average return: {'{:.2f}'.format(average_return)}%")
+    return rmse, baseline_rmse
 
 def predict_graph(graph_image_path):
     # Load the model
@@ -251,7 +269,6 @@ def predict_graph(graph_image_path):
     model.eval()
     
     original_image, image_tensor = preprocess_image(graph_image_path, transform)
-    probabilities = predict(model, image_tensor, device)
-    predicted_class = target_to_class[np.argmax(probabilities)]
+    predicted_value = predict(model, image_tensor, device)
 
-    return predicted_class, probabilities
+    return predicted_value
