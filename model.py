@@ -48,7 +48,7 @@ class StockGraphDataset(Dataset):
 
 # Transforms images into same size
 transform = transforms.Compose([
-    transforms.Resize((128, 128)),
+    transforms.Resize((64, 128)),
     transforms.ToTensor(),
 ])
 

@@ -14,19 +14,36 @@ def generate_graph(data, output_path):
     # Adds moving average line to the graph
     ma_dict = mpf.make_addplot(data[f"ma{setup.ma_period}"])
 
+    # Define market colors and style
+    market_colors = mpf.make_marketcolors(up='green', down='red', edge='white', wick={'up':'green', 'down':'red'}, volume={'up': 'green', 'down': 'red'})
+    style = mpf.make_mpf_style(marketcolors=market_colors)
+
+    # Determine the min and max values for the y-axis
+    price_min = min(data['Low'].min(), data[f"ma{setup.ma_period}"].min())
+    price_max = max(data['High'].max(), data[f"ma{setup.ma_period}"].max())
+
+    # Adjusting x-axis limits by adding a margin
+    x_limits = [data.index[0] - pd.Timedelta(hours=14), data.index[-1] + pd.Timedelta(hours=14)]
+
+    # Setup
+    width_config = dict(candle_linewidth=5, candle_width=1, volume_linewidth=0, line_width=4)
+
     # Create a candlestick graph with the custom style and volume, and save it as an image
     mpf.plot(data,
-            type='candle',
-            #  mav=2,
-            addplot=ma_dict,
-            style='yahoo',
-            figratio=(1,1),
-            volume=True,
-            # tight_layout=True,
-            axisoff=True,
-            savefig=dict(fname=output_path,bbox_inches="tight"),
-            update_width_config=dict(candle_linewidth=5)
-            )
+             type='candle',
+             addplot=ma_dict,
+             style=style,
+             yscale='linear',
+             ylim=(price_min, price_max),  # Adjust y-axis limits
+             xlim=x_limits,  # Setting x-axis limits
+             tight_layout=True,  # This will remove whitespace around the figure
+             scale_padding=dict(left=0, bottom=0, top=0, right=0),  # This will scale the plot to fit the figure
+             figratio=(1,2),
+             volume=True,
+             axisoff=True,
+             savefig=dict(fname=output_path, bbox_inches="tight"),
+             scale_width_adjustment=dict(candle=0.8),
+             update_width_config=width_config)
 
 
 def generate_data(type, start_date, end_date, ticker_symbol):
@@ -51,7 +68,7 @@ def generate_data(type, start_date, end_date, ticker_symbol):
     data.set_index('Date', inplace=True)
     
     # Add a column with moving average
-    data[f"ma{setup.ma_period}"] = data['Adj Close'].rolling(window=setup.ma_period).mean()
+    data[f"ma{setup.ma_period}"] = data['Close'].rolling(window=setup.ma_period).mean()
     # Remove first n rows, because they don't have a n-period moving average
     data = data.iloc[setup.ma_period:]
 
@@ -73,9 +90,10 @@ def generate_data(type, start_date, end_date, ticker_symbol):
         print(interval, ticker_symbol)
 
         if loop_index + 1 < len(grouped_data):
-            next_open = grouped_data[loop_index + 1].iloc[-1]['Open']
-            next_adj_close = grouped_data[loop_index + 1].iloc[-1]['Adj Close']
+            next_open = grouped_data[loop_index + 1].iloc[0]['Open']
+            next_adj_close = grouped_data[loop_index + 1].iloc[-1]['Close']
             loop_index += 1
+            print(next_open, next_adj_close)
         else:
             break
 

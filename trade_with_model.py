@@ -48,7 +48,7 @@ for ticker in tickers:
         interval = f"{earliest_date}__{latest_date}"
     
         enter_price = group.iloc[0]['Open']
-        exit_price = group.iloc[-1]['Adj Close']
+        exit_price = group.iloc[-1]['Close']
 
         # Predict the graph
         prediction = predict_graph(f"{trade_folder}/{interval}__{ticker}.png")
