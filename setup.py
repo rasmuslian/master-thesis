@@ -1,13 +1,13 @@
 # Data setup
-train_start_date = '2021-01-01'
-val_cutoff_date = '2022-01-01'
-train_end_date = '2022-12-31'
+train_start_date = '2016-01-01'
+val_cutoff_date = '2020-07-01'
+train_end_date = '2021-12-31'
 
-test_start_date = '2023-01-01'
+test_start_date = '2022-01-01'
 test_end_date = '2023-12-31'
 
 train_tickerslist = 'test1'
-test_tickerslist = 'test2'
+test_tickerslist = 'test1'
 
 data_interval = '1d'
 data_groupby = 5

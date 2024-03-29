@@ -4,7 +4,7 @@ import pandas as pd
 import datetime
 import random
 import setup
-from utils import clear_and_create_folder, create_folder
+from utils import clear_and_create_folder, create_folder, check_if_folder_exists
 import json
 
 def generate_graph(data, output_path):
@@ -125,31 +125,33 @@ def generate_data(type, start_date, end_date, ticker_symbol):
             copyfile(output_path, trade_output_path)
 
 
-"""--- PREPARES THE FOLDERS ---"""
-folders = [
-    f"stock_graphs/{setup.train_tickerslist}/train",
-    f"stock_graphs/{setup.test_tickerslist}/test",
-    f"stock_graphs/{setup.train_tickerslist}/validate",
-    f"stock_graphs/{setup.test_tickerslist}/trade",
-]
+def generate_flow(type, tickerslist, start_date, end_date):
+    with open(f"ticker_lists/{tickerslist}.json", 'r', encoding="utf-8") as file:
+        ticker_symbol_list = json.load(file)
 
-for folder in folders:
-    clear_and_create_folder(folder)
+    for ticker_symbol in ticker_symbol_list:
+        print(f"Generating data for {ticker_symbol}, {type}")
+        generate_data(type, start_date, end_date, ticker_symbol)
 
 
 """--- GENERATES THE GRAPHS ---"""
 # Generates training and validation data
-with open(f"ticker_lists/{setup.train_tickerslist}.json", 'r', encoding="utf-8") as file:
-    training_ticker_symbol_list = json.load(file)
+train_folder_exist = check_if_folder_exists(f"stock_graphs/{setup.train_tickerslist}/train")
+val_folder_exist = check_if_folder_exists(f"stock_graphs/{setup.train_tickerslist}/validate")
 
-for ticker_symbol in training_ticker_symbol_list:
-    print(f"Generating data for {ticker_symbol}, training")
-    generate_data('train', setup.train_start_date, setup.train_end_date, ticker_symbol)
+if not train_folder_exist and not val_folder_exist:
+    clear_and_create_folder(f"stock_graphs/{setup.train_tickerslist}/train")
+    clear_and_create_folder(f"stock_graphs/{setup.train_tickerslist}/validate")
+    generate_flow('train', setup.train_tickerslist, setup.train_start_date, setup.train_end_date)
+else:
+    print('Training and validation stock graphs already exists')
 
 # Generates testing data
-with open(f"ticker_lists/{setup.test_tickerslist}.json", 'r', encoding="utf-8") as file:
-    test_ticker_symbol_list = json.load(file)
+test_folder_exist = check_if_folder_exists(f"stock_graphs/{setup.test_tickerslist}/test")
 
-for ticker_symbol in test_ticker_symbol_list:
-    print(f"Generating data for {ticker_symbol}, testing")
-    generate_data('test', setup.test_start_date, setup.test_end_date, ticker_symbol)
+if not test_folder_exist:
+    clear_and_create_folder(f"stock_graphs/{setup.test_tickerslist}/test")
+    clear_and_create_folder(f"stock_graphs/{setup.test_tickerslist}/trade")
+    generate_flow('test', setup.test_tickerslist, setup.test_start_date, setup.test_end_date)
+else:
+    print('Testing stock graphs already exists')

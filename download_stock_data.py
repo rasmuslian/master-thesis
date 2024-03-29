@@ -1,6 +1,6 @@
 import yfinance as yf
 import setup
-from utils import clear_and_create_folder, create_folder
+from utils import clear_and_create_folder, create_folder, check_if_folder_exists
 import json
 
 def download_stock_data(type, start_date, end_date, ticker_symbol):
@@ -15,24 +15,25 @@ def download_stock_data(type, start_date, end_date, ticker_symbol):
     # Save data to a CSV file
     data.to_csv(f"stock_data/{type}/{tickerlist}/{ticker_symbol}.csv")
 
+def download_flow(type, tickerlist, start_date, end_date):
+    clear_and_create_folder(f"stock_data/{type}/{tickerlist}")
 
-# Prepares the folders
-clear_and_create_folder(f"stock_data/train/{setup.train_tickerslist}")
-clear_and_create_folder(f"stock_data/test/{setup.test_tickerslist}")
+    with open(f"ticker_lists/{tickerlist}.json", 'r', encoding="utf-8") as file:
+        ticker_symbol_list = json.load(file)
 
+    for ticker_symbol in ticker_symbol_list:
+        # Download stock data
+        download_stock_data(type, start_date, end_date, ticker_symbol)
+
+
+# Check if folders already exists
+train_folder_exist = check_if_folder_exists(f"stock_data/train/{setup.train_tickerslist}")
+test_folder_exist = check_if_folder_exists(f"stock_data/test/{setup.test_tickerslist}")
 
 # Get training ticker list
-with open(f"ticker_lists/{setup.train_tickerslist}.json", 'r', encoding="utf-8") as file:
-    training_ticker_symbol_list = json.load(file)
-
-for ticker_symbol in training_ticker_symbol_list:
-    # Download stock data
-    download_stock_data('train', setup.train_start_date, setup.train_end_date, ticker_symbol)
+if not train_folder_exist:
+    download_flow('train', setup.train_tickerslist, setup.train_start_date, setup.train_end_date)
 
 # Get test ticker list
-with open(f"ticker_lists/{setup.test_tickerslist}.json", 'r', encoding="utf-8") as file:
-    test_ticker_symbol_list = json.load(file)
-
-for ticker_symbol in test_ticker_symbol_list:
-    # Download stock data
-    download_stock_data('test', setup.test_start_date, setup.test_end_date, ticker_symbol)
+if not test_folder_exist:
+    download_flow('test', setup.test_tickerslist, setup.test_start_date, setup.test_end_date)

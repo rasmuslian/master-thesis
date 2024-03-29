@@ -17,3 +17,5 @@ def clear_and_create_folder(folder):
     create_folder(folder)
     clear_folder(folder)
 
+def check_if_folder_exists(folder):
+    return os.path.exists(folder)
