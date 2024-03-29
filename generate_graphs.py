@@ -53,7 +53,10 @@ def generate_data(type, start_date, end_date, ticker_symbol):
         tickerlist = setup.test_tickerslist
 
     # Read the CSV data
-    data = pd.read_csv(f"stock_data/{type}/{tickerlist}/{ticker_symbol}.csv")
+    data_path_type = type
+    if type == 'validate':
+        data_path_type = 'train'
+    data = pd.read_csv(f"stock_data/{data_path_type}/{tickerlist}/{ticker_symbol}.csv")
 
     # Convert 'Datetime' to datetime format
     match setup.data_interval:
@@ -74,6 +77,16 @@ def generate_data(type, start_date, end_date, ticker_symbol):
 
     # Filter the data based on the start and end date
     data = data.loc[start_date:end_date]
+
+    '''--- ENSURES TRADING DATES SYNC, FOR SORTING ---'''
+    # Read the trading dates JSON file
+    with open(f"stock_dates/{type}/{tickerlist}.json", 'r', encoding="utf-8") as file:
+        trading_dates = json.load(file)
+    
+    # Check the first rows earliest_date of the data. If it inst included in the trading_dates, remove the row. Keep doing this until the earliest_date is included in the trading_dates
+    while data.index[0].strftime("%Y-%m-%d") not in trading_dates:
+        data = data.iloc[1:]
+        print(f"Removed row from {ticker_symbol}")
 
     # Take the first five rows of the pandas data and add to list, and then repeat
     group_by_chunks = setup.data_groupby
@@ -100,24 +113,15 @@ def generate_data(type, start_date, end_date, ticker_symbol):
         period_return = (next_adj_close - next_open) / next_open
         # Round period return to 2 decimal places. Ensure always two decimals, even if 0
         period_return = "{:.2f}".format(period_return * 100)
-
-        # Set output type, and pick data for validation set.
-        output_type = type
-
-        val_cutoff_datetime = datetime.datetime.strptime(setup.val_cutoff_date, '%Y-%m-%d')
-        earliest_datetime = datetime.datetime.strptime(earliest_date, '%Y-%m-%d')
-        if (type == 'train' and val_cutoff_datetime < earliest_datetime):
-            output_type = 'validate'
-            print('Validate')
             
         # Generate the graph
-        if type == 'train':
-            tickerlist = setup.train_tickerslist
-        else:
+        if type == 'test':
             tickerlist = setup.test_tickerslist
-
+        else:
+            tickerlist = setup.train_tickerslist
+        
         filename = f"{interval}__{period_return}__{ticker_symbol}.png"
-        output_path = f"stock_graphs/{tickerlist}/{output_type}/{filename}"
+        output_path = f"stock_graphs/{tickerlist}/{type}/{filename}"
         generate_graph(group, output_path)
         # If test, copy the output file to the 'trade' folder
         if(type == 'test'):
@@ -126,32 +130,24 @@ def generate_data(type, start_date, end_date, ticker_symbol):
 
 
 def generate_flow(type, tickerslist, start_date, end_date):
-    with open(f"ticker_lists/{tickerslist}.json", 'r', encoding="utf-8") as file:
-        ticker_symbol_list = json.load(file)
+    folder_exist = check_if_folder_exists(f"stock_graphs/{tickerslist}/{type}")
+    
+    if not folder_exist:
+        clear_and_create_folder(f"stock_graphs/{tickerslist}/{type}")
+        if type == 'test':
+            clear_and_create_folder(f"stock_graphs/{tickerslist}/trade")
 
-    for ticker_symbol in ticker_symbol_list:
-        print(f"Generating data for {ticker_symbol}, {type}")
-        generate_data(type, start_date, end_date, ticker_symbol)
+        with open(f"ticker_lists/{tickerslist}.json", 'r', encoding="utf-8") as file:
+            ticker_symbol_list = json.load(file)
+
+        for ticker_symbol in ticker_symbol_list:
+            print(f"Generating data for {ticker_symbol}, {type}")
+            generate_data(type, start_date, end_date, ticker_symbol)
+    else:
+        print(f"{type} stock graphs already exists")
 
 
 """--- GENERATES THE GRAPHS ---"""
-# Generates training and validation data
-train_folder_exist = check_if_folder_exists(f"stock_graphs/{setup.train_tickerslist}/train")
-val_folder_exist = check_if_folder_exists(f"stock_graphs/{setup.train_tickerslist}/validate")
-
-if not train_folder_exist and not val_folder_exist:
-    clear_and_create_folder(f"stock_graphs/{setup.train_tickerslist}/train")
-    clear_and_create_folder(f"stock_graphs/{setup.train_tickerslist}/validate")
-    generate_flow('train', setup.train_tickerslist, setup.train_start_date, setup.train_end_date)
-else:
-    print('Training and validation stock graphs already exists')
-
-# Generates testing data
-test_folder_exist = check_if_folder_exists(f"stock_graphs/{setup.test_tickerslist}/test")
-
-if not test_folder_exist:
-    clear_and_create_folder(f"stock_graphs/{setup.test_tickerslist}/test")
-    clear_and_create_folder(f"stock_graphs/{setup.test_tickerslist}/trade")
-    generate_flow('test', setup.test_tickerslist, setup.test_start_date, setup.test_end_date)
-else:
-    print('Testing stock graphs already exists')
+generate_flow('train', setup.train_tickerslist, setup.train_start_date, setup.train_end_date)
+generate_flow('validate', setup.train_tickerslist, setup.validate_start_date, setup.validate_end_date)
+generate_flow('test', setup.test_tickerslist, setup.test_start_date, setup.test_end_date)

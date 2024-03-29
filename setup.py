@@ -1,13 +1,20 @@
 # Data setup
 train_start_date = '2016-01-01'
-val_cutoff_date = '2020-07-01'
-train_end_date = '2021-12-31'
+train_end_date = '2020-06-30'
+
+validate_start_date = '2020-07-01'
+validate_end_date = '2021-12-31'
 
 test_start_date = '2022-01-01'
 test_end_date = '2023-12-31'
 
-train_tickerslist = 'test1'
+train_tickerslist = 'test3'
 test_tickerslist = 'test3'
+
+# Tickers that exist the whole period, to ensure date consistency
+train_ticker_trading_base = 'AAPL'
+validate_ticker_trading_base = 'AAPL'
+test_ticker_trading_base = 'AAPL'
 
 data_interval = '1d'
 data_groupby = 5

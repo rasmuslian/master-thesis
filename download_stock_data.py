@@ -32,7 +32,7 @@ test_folder_exist = check_if_folder_exists(f"stock_data/test/{setup.test_tickers
 
 # Get training ticker list
 if not train_folder_exist:
-    download_flow('train', setup.train_tickerslist, setup.train_start_date, setup.train_end_date)
+    download_flow('train', setup.train_tickerslist, setup.train_start_date, setup.validate_end_date)
 else:
     print('Training stock data already exists')
 
