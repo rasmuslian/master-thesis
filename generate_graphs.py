@@ -6,6 +6,7 @@ import random
 import setup
 from utils import clear_and_create_folder, create_folder, check_if_folder_exists
 import json
+import csv
 
 def generate_graph(data, output_path):
     # Create a copy of the DataFrame
@@ -79,12 +80,13 @@ def generate_data(type, start_date, end_date, ticker_symbol):
     data = data.loc[start_date:end_date]
 
     '''--- ENSURES TRADING DATES SYNC, FOR SORTING ---'''
-    # Read the trading dates JSON file
-    with open(f"stock_dates/{type}/{tickerlist}.json", 'r', encoding="utf-8") as file:
-        trading_dates = json.load(file)
-    
-    # Check the first rows earliest_date of the data. If it inst included in the trading_dates, remove the row. Keep doing this until the earliest_date is included in the trading_dates
-    while data.index[0].strftime("%Y-%m-%d") not in trading_dates:
+    # Read the trading dates CSV file
+    with open(f"stock_dates/{type}/{tickerlist}.csv", 'r', encoding="utf-8") as file:
+        reader = csv.DictReader(file)
+        earliest_dates = [row['Earliest_date'] for row in reader]    
+        
+    # Check the first rows earliest_date of the data. If it isn't included in the trading_dates, remove the row. Keep doing this until the earliest_date is included in the trading_dates
+    while data.index[0].strftime("%Y-%m-%d") not in earliest_dates:
         data = data.iloc[1:]
         print(f"Removed row from {ticker_symbol}")
 

@@ -52,9 +52,9 @@ transform = transforms.Compose([
     transforms.ToTensor(),
 ])
 
-train_folder = f"stock_graphs_regression/{setup.train_tickerslist}/train/"
-valid_folder = f"stock_graphs_regression/{setup.train_tickerslist}/validate/"
-test_folder = f"stock_graphs_regression/{setup.test_tickerslist}/test/"
+train_folder = f"stock_graphs/{setup.train_tickerslist}/train/"
+valid_folder = f"stock_graphs/{setup.train_tickerslist}/validate/"
+test_folder = f"stock_graphs/{setup.test_tickerslist}/test/"
 
 train_dataset = StockGraphDataset(train_folder, transform)
 val_dataset = StockGraphDataset(valid_folder, transform)
@@ -237,7 +237,7 @@ def test_model():
 
     # for image_path, percentage_return in test_dataset:
     for image_path, percentage_return in zip(test_dataset.images, test_dataset.percentage_return):
-        original_image, image_tensor = preprocess_image(f"stock_graphs_regression/{setup.test_tickerslist}/test/{image_path}", transform)
+        original_image, image_tensor = preprocess_image(f"stock_graphs/{setup.test_tickerslist}/test/{image_path}", transform)
         predicted_value = predict(model, image_tensor, device)
         print(f"Input: {image_path}, Actual: {percentage_return}, Predicted: {predicted_value}")
         error += abs(percentage_return - predicted_value)

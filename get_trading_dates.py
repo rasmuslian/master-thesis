@@ -1,6 +1,7 @@
 import setup
 import pandas as pd
 import json
+import csv
 from utils import clear_and_create_folder, check_if_folder_exists
 
 def get_trading_dates(type, start_date, end_date, ticker_symbol):
@@ -50,11 +51,17 @@ def get_trading_dates(type, start_date, end_date, ticker_symbol):
     for group in grouped_data:
         # Get earliest datetime and latest date in the group
         earliest_date = group.index[0].strftime("%Y-%m-%d")
-        dates.append(earliest_date)
+        latest_date = group.index[-1].strftime("%Y-%m-%d")
+        dates.append((earliest_date, latest_date))
     
-    # Write the dates to a JSON file
-    with open(f"stock_dates/{type}/{tickerlist}.json", 'w', encoding="utf-8") as file:
-        json.dump(dates, file)
+    # Open the CSV file in write mode
+    with open(f"stock_dates/{type}/{tickerlist}.csv", 'w', newline='', encoding="utf-8") as file:
+        writer = csv.writer(file)
+        writer.writerow(['earliest_date', 'latest_date'])
+
+        # Write the dates to the CSV file
+        for date in dates:
+            writer.writerow(date)
 
 # Get training ticker list
 get_trading_dates('train', setup.train_start_date, setup.train_end_date, setup.train_ticker_trading_base)

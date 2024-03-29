@@ -1,0 +1,2 @@
+model_name,portfolio_return,trades,annualised_return,alpha,sharpe,train_data,trade_data,benchmark_date
+model_hhloyb__actep3_mar24-1509_test1_1d_tf_efficientnet_b7_ns_maxep10_bs32_lr0001,-0.28162595239035193,0,,,,test3,test3,2024-03-29 15:35:24
