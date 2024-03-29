@@ -7,7 +7,7 @@ test_start_date = '2022-01-01'
 test_end_date = '2023-12-31'
 
 train_tickerslist = 'test1'
-test_tickerslist = 'test1'
+test_tickerslist = 'test3'
 
 data_interval = '1d'
 data_groupby = 5
