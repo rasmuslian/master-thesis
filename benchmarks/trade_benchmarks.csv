@@ -1,2 +1,5 @@
-model_name,portfolio_return,trades,annualised_return,alpha,sharpe,train_data,trade_data,benchmark_date
-model_hhloyb__actep3_mar24-1509_test1_1d_tf_efficientnet_b7_ns_maxep10_bs32_lr0001,-0.28162595239035193,0,,,,test3,test3,2024-03-29 15:35:24
+model_name,portfolio_return,trades,annualised_return,alpha,sharpe,train_data,trade_data,benchmark_date,portfolio_return_after_costs
+model_hhloyb__actep3_mar24-1509_test1_1d_tf_efficientnet_b7_ns_maxep10_bs32_lr0001,-0.2816259523903519,0,,,,test3,test3,2024-03-29 15:35:24,
+model_hhloyb__actep3_mar24-1509_test1_1d_tf_efficientnet_b7_ns_maxep10_bs32_lr0001,-0.2816259523903519,4,,,,test3,test3,2024-04-02 18:36:03,
+model_hhloyb__actep3_mar24-1509_test1_1d_tf_efficientnet_b7_ns_maxep10_bs32_lr0001,-36.00395632147637,192,,,,test3,test3,2024-04-02 18:48:49,
+model_hhloyb__actep3_mar24-1509_test1_1d_tf_efficientnet_b7_ns_maxep10_bs32_lr0001,-36.00395632147637,167,,,,test3,test3,2024-04-02 19:25:01,-54.26670370146238

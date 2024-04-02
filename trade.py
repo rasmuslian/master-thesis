@@ -17,9 +17,11 @@ class Portfolio:
         self.prev_long = []
         self.prev_short = []
         self.portfolio_percentage = 1.00
+        self.portfolio_percentage_after_costs = 1.00
         self.total_trades = 0
 
 portfolio = Portfolio()
+trading_costs = 0.002 # 20 basis points
 
 with open(f"stock_dates/test/{setup.test_tickerslist}.csv", 'r', encoding="utf-8") as file:
     reader = csv.DictReader(file)
@@ -42,18 +44,29 @@ def make_trade(ticker, position, enter_date, exit_date):
         enter_price = data.loc[enter_date]['Open']
         exit_price = data.loc[exit_date]['Close']
 
-    # Calculate the trade
+    # Calculate the trade and check if ticker is included in the current holdings
     match position:
         case 'long':
             trade_return = (exit_price - enter_price) / enter_price
+            is_current_holding = any(stock.ticker == ticker for stock in portfolio.prev_long)
         case 'short':
             trade_return = (enter_price - exit_price) / enter_price
-        
-    # Calculate the portfolio percentage
-    print(f"{position} | {ticker} | {enter_date} | {exit_date} | {trade_return}")
-    return (1 + trade_return)
+            is_current_holding = any(stock.ticker == ticker for stock in portfolio.prev_short)
+    
+    # Adjust for trading costs
+    print(f"Is current holding: {is_current_holding}")
+    if is_current_holding:
+        trade_return_after_costs = trade_return
+    else:
+        trade_return_after_costs = trade_return - trading_costs
+        # Add the trade to the portfolio turnover
+        portfolio.total_trades += 1
 
-for index, trading_date in enumerate(earliest_dates[:2]):
+    # Calculate the portfolio percentage
+    print(f"{position} | {ticker} | {enter_date} | {exit_date} | {trade_return} | {trade_return_after_costs}")
+    return (1 + trade_return), (1 + trade_return_after_costs)
+
+for index, trading_date in enumerate(earliest_dates):
     print(trading_date)
     # Get all files inside the stock_graphs folder that start with the trading date
     trading_date_files = [file for file in stock_graphs_folder if file.startswith(trading_date)]
@@ -80,14 +93,20 @@ for index, trading_date in enumerate(earliest_dates[:2]):
     bottom_decile = stocks[-int(len(stocks) * 0.1):]
 
     for stock in top_decile:
-        trade_return = make_trade(stock.ticker, 'long', stock.enter_date, stock.exit_date)
+        trade_return, trade_return_after_costs = make_trade(stock.ticker, 'long', stock.enter_date, stock.exit_date)
         portfolio.portfolio_percentage *= trade_return
+        portfolio.portfolio_percentage_after_costs *= trade_return_after_costs
     
     for stock in bottom_decile:
-        trade_return = make_trade(stock.ticker, 'short', stock.enter_date, stock.exit_date)
+        trade_return, trade_return_after_costs = make_trade(stock.ticker, 'short', stock.enter_date, stock.exit_date)
         portfolio.portfolio_percentage *= trade_return
+        portfolio.portfolio_percentage_after_costs *= trade_return_after_costs
+
+    # Update the portfolio
+    portfolio.prev_long = top_decile
+    portfolio.prev_short = bottom_decile
     
-print(f"Portfolio percentage: {'{:.2f}'.format((portfolio.portfolio_percentage - 1) * 100)}%, Total trades: {portfolio.total_trades}")
+print(f"Portfolio percentage after costs: {'{:.2f}'.format((portfolio.portfolio_percentage_after_costs - 1) * 100)}%, Total trades: {portfolio.total_trades}")
 
 
 '''--- CREATES BENCHMARKS ---'''
@@ -102,6 +121,7 @@ if not os.path.isfile(benchmark_filepath):
     df = pd.DataFrame(columns=[
         'model_name',
         'portfolio_return',
+        'portfolio_return_after_costs',
         'trades',
         'annualised_return',
         'alpha',
@@ -120,6 +140,7 @@ benchmark_date = pd.Timestamp.today().strftime("%Y-%m-%d %H:%M:%S")
 new_row = pd.DataFrame({
     'model_name': [setup.test_model_name],
     'portfolio_return': [(portfolio.portfolio_percentage - 1) * 100],
+    'portfolio_return_after_costs': [(portfolio.portfolio_percentage_after_costs - 1) * 100],
     'trades': [portfolio.total_trades],
     'annualised_return': [''],
     'alpha': [''],
