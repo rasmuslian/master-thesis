@@ -8,13 +8,13 @@ validate_end_date = '2021-12-31'
 test_start_date = '2022-01-01'
 test_end_date = '2023-12-31'
 
-train_tickerslist = 'test3'
-test_tickerslist = 'test3'
+train_tickerslist = 'stockallshares'
+test_tickerslist = 'stockallshares'
 
 # Tickers that exist the whole period, to ensure date consistency
-train_ticker_trading_base = 'AAPL'
-validate_ticker_trading_base = 'AAPL'
-test_ticker_trading_base = 'AAPL'
+train_ticker_trading_base = 'ABB.ST'
+validate_ticker_trading_base = 'ABB.ST'
+test_ticker_trading_base = 'ABB.ST'
 
 data_interval = '1d'
 data_groupby = 5

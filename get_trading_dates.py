@@ -1,6 +1,5 @@
 import setup
 import pandas as pd
-import json
 import csv
 from utils import clear_and_create_folder, check_if_folder_exists
 
