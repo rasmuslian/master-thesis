@@ -18,7 +18,7 @@ test_ticker_trading_base = 'ABB.ST'
 
 data_interval = '1d'
 data_groupby = 5
-ma_period = 20
+ma_period = 5
 
 # Training model params
 pretrained_model_name = 'tf_efficientnet_b7_ns'

@@ -83,7 +83,7 @@ def generate_data(type, start_date, end_date, ticker_symbol):
     # Read the trading dates CSV file
     with open(f"stock_dates/{type}/{tickerlist}.csv", 'r', encoding="utf-8") as file:
         reader = csv.DictReader(file)
-        earliest_dates = [row['Earliest_date'] for row in reader]    
+        earliest_dates = [row['earliest_date'] for row in reader]    
         
     # Check the first rows earliest_date of the data. If it isn't included in the trading_dates, remove the row. Keep doing this until the earliest_date is included in the trading_dates
     while data.index[0].strftime("%Y-%m-%d") not in earliest_dates:
