@@ -4,6 +4,8 @@ import csv
 from utils import clear_and_create_folder, check_if_folder_exists
 
 def get_trading_dates(type, start_date, end_date, ticker_symbol):
+    clear_and_create_folder(f"stock_dates/{type}")
+
     if type == 'train':
         tickerlist = setup.train_tickerslist
     else:
@@ -38,6 +40,7 @@ def get_trading_dates(type, start_date, end_date, ticker_symbol):
     data[f"ma{setup.ma_period}"] = data['Close'].rolling(window=setup.ma_period).mean()
     # Remove first n rows, because they don't have a n-period moving average
     data = data.iloc[setup.ma_period:]
+    all_trading_dates = all_trading_dates.iloc[setup.ma_period:]
 
     # Filter the data based on the start and end date
     data = data.loc[start_date:end_date]
