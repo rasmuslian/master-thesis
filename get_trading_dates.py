@@ -30,6 +30,9 @@ def get_trading_dates(type, start_date, end_date, ticker_symbol):
 
     # Set 'Datetime' as the index
     data.set_index('Date', inplace=True)
+
+    # Get all trading days variable, in datetime format from dataframe
+    all_trading_dates = data.copy()    
     
     # Add a column with moving average
     data[f"ma{setup.ma_period}"] = data['Close'].rolling(window=setup.ma_period).mean()
@@ -38,6 +41,7 @@ def get_trading_dates(type, start_date, end_date, ticker_symbol):
 
     # Filter the data based on the start and end date
     data = data.loc[start_date:end_date]
+    all_trading_dates = all_trading_dates.loc[start_date:end_date]
 
     # Take the first five rows of the pandas data and add to list, and then repeat
     group_by_chunks = setup.data_groupby
@@ -61,6 +65,22 @@ def get_trading_dates(type, start_date, end_date, ticker_symbol):
         # Write the dates to the CSV file
         for date in dates:
             writer.writerow(date)
+    
+    # Get trading date for the base ticker
+    if type == 'test':
+        trading_dates = []
+        for trading_date_obj in all_trading_dates.groupby(all_trading_dates.index):
+            trading_date = trading_date_obj[0].strftime("%Y-%m-%d")
+            trading_dates.append(trading_date)
+
+        # Open the CSV file in write mode
+        with open(f"stock_dates/{type}/{tickerlist}_all.csv", 'w', newline='', encoding="utf-8") as file:
+            writer = csv.writer(file)
+            writer.writerow(['trading_date'])
+
+            # Write the dates to the CSV file
+            for trading_date in trading_dates:
+                writer.writerow([trading_date])
 
 # Get training ticker list
 get_trading_dates('train', setup.train_start_date, setup.train_end_date, setup.train_ticker_trading_base)

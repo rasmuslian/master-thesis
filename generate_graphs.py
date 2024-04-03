@@ -86,7 +86,7 @@ def generate_data(type, start_date, end_date, ticker_symbol):
         earliest_dates = [row['earliest_date'] for row in reader]    
         
     # Check the first rows earliest_date of the data. If it isn't included in the trading_dates, remove the row. Keep doing this until the earliest_date is included in the trading_dates
-    while data.index[0].strftime("%Y-%m-%d") not in earliest_dates:
+    while len(data.index) > 0 and data.index[0].strftime("%Y-%m-%d") not in earliest_dates:
         data = data.iloc[1:]
         print(f"Removed row from {ticker_symbol}")
 
