@@ -18,6 +18,8 @@ class Portfolio:
         self.prev_short = []
         self.portfolio_percentage = 1.00
         self.portfolio_percentage_after_costs = 1.00
+        self.long_percentage_after_costs = 1.00
+        self.short_percentage_after_costs = 1.00
         self.total_trades = 0
 
 portfolio = Portfolio()
@@ -96,11 +98,13 @@ for index, trading_date in enumerate(earliest_dates):
         trade_return, trade_return_after_costs = make_trade(stock.ticker, 'long', stock.enter_date, stock.exit_date)
         portfolio.portfolio_percentage *= trade_return
         portfolio.portfolio_percentage_after_costs *= trade_return_after_costs
+        portfolio.long_percentage_after_costs *= trade_return_after_costs
     
     for stock in bottom_decile:
         trade_return, trade_return_after_costs = make_trade(stock.ticker, 'short', stock.enter_date, stock.exit_date)
         portfolio.portfolio_percentage *= trade_return
         portfolio.portfolio_percentage_after_costs *= trade_return_after_costs
+        portfolio.short_percentage_after_costs *= trade_return_after_costs
 
     # Update the portfolio
     portfolio.prev_long = top_decile
@@ -122,6 +126,8 @@ if not os.path.isfile(benchmark_filepath):
         'model_name',
         'portfolio_return',
         'portfolio_return_after_costs',
+        'portfolio_long_return_after_costs',
+        'portfolio_short_return_after_costs',
         'trades',
         'annualised_return',
         'alpha',
@@ -141,6 +147,8 @@ new_row = pd.DataFrame({
     'model_name': [setup.test_model_name],
     'portfolio_return': [(portfolio.portfolio_percentage - 1) * 100],
     'portfolio_return_after_costs': [(portfolio.portfolio_percentage_after_costs - 1) * 100],
+    'portfolio_long_return_after_costs': [(portfolio.long_percentage_after_costs - 1) * 100],
+    'portfolio_short_return_after_costs': [(portfolio.short_percentage_after_costs - 1) * 100],
     'trades': [portfolio.total_trades],
     'annualised_return': [''],
     'alpha': [''],
