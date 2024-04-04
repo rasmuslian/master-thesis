@@ -8,6 +8,14 @@ validate_end_date = '2021-12-31'
 test_start_date = '2022-01-01'
 test_end_date = '2023-12-31'
 
+# train_tickerslist = 'test3'
+# test_tickerslist = 'test3'
+
+# # Tickers that exist the whole period, to ensure date consistency
+# train_ticker_trading_base = 'AAPL'
+# validate_ticker_trading_base = 'AAPL'
+# test_ticker_trading_base = 'AAPL'
+
 train_tickerslist = 'stockallshares'
 test_tickerslist = 'stockallshares'
 
@@ -22,7 +30,7 @@ ma_period = 5
 
 # Training model params
 pretrained_model_name = 'tf_efficientnet_b7_ns'
-max_epochs = 10
+max_epochs = 100
 batch_size = 32
 learning_rate = 0.001
 

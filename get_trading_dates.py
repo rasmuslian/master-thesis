@@ -4,7 +4,7 @@ import csv
 from utils import clear_and_create_folder, check_if_folder_exists
 
 def get_trading_dates(type, start_date, end_date, ticker_symbol):
-    clear_and_create_folder(f"stock_dates/{type}")
+    # clear_and_create_folder(f"stock_dates/{type}")
 
     if type == 'train':
         tickerlist = setup.train_tickerslist
