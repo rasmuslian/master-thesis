@@ -30,6 +30,8 @@ benchmark_df = benchmark_df.loc[setup.test_start_date:setup.test_end_date]
 
 portfolio_df['benchmark'] = benchmark_df['Close'].pct_change()
 
+
+'''--- Alpha ---'''
 # Calculate average returns
 average_portfolio_return = portfolio_df['portfolio'].mean()
 average_risk_free_return = portfolio_df['riskfree_daily'].mean()
@@ -46,8 +48,17 @@ jensens_alpha = average_portfolio_return - (average_risk_free_return + beta * (a
 print("Jensen's Alpha:", jensens_alpha)
 
 
-'''--- Beta, Alpha and Sharpe ---'''
+'''--- Sharpe ---'''
+# Calculate the excess returns of the portfolio
+excess_returns = portfolio_df['portfolio'] - portfolio_df['riskfree_daily']
 
+# Calculate the standard deviation of the portfolio's returns
+std_dev = excess_returns.std()
+
+# Calculate the Sharpe Ratio
+sharpe_ratio = excess_returns.mean() / std_dev
+
+print("Sharpe Ratio:", sharpe_ratio)
 
 
 '''--- Save ---'''
