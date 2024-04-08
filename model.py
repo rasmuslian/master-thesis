@@ -238,7 +238,7 @@ def test_model():
     # for image_path, percentage_return in test_dataset:
     for image_path, percentage_return in zip(test_dataset.images, test_dataset.percentage_return):
         original_image, image_tensor = preprocess_image(f"stock_graphs/{setup.test_tickerslist}/test/{image_path}", transform)
-        predicted_value = predict(model, image_tensor, device)
+        predicted_value = predict(model, image_tensor, device) * 100
         print(f"Input: {image_path}, Actual: {percentage_return}, Predicted: {predicted_value}")
         error += abs(percentage_return - predicted_value)
         cumulative_return += percentage_return
