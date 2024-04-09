@@ -21,7 +21,7 @@ riskfree_df = riskfree_df.loc[setup.test_start_date:setup.test_end_date]
 portfolio_df['riskfree'] = riskfree_df['3 mån']/100
 
 # Add a new column that takes the annualized risk free rate and divides it by 360 to get the daily risk free rate. Append to new column called riskfree_daily
-portfolio_df['riskfree_daily'] = (1 + portfolio_df['riskfree']/100)**(1/360) - 1
+portfolio_df['riskfree_daily'] = (1 + portfolio_df['riskfree'])**(1/360) - 1
 
 
 '''--- Benchmarks ---'''
