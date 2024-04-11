@@ -7,10 +7,10 @@ import setup
 portfolio_df = pd.read_csv(f"portfolios/{setup.test_tickerslist}.csv", index_col=0)
 
 # Make a new column called daily_return
-portfolio_df['portfolio'] = portfolio_df['portfolio_percentage'].pct_change()
-portfolio_df['portfolio_long'] = portfolio_df['portfolio_percentage'].pct_change()
-portfolio_df['portfolio_short'] = portfolio_df['portfolio_percentage'].pct_change()
-portfolio_df['portfolio_after_costs'] = portfolio_df['portfolio_percentage'].pct_change()
+portfolio_df['portfolio'] = portfolio_df['portfolio_pct'].pct_change()
+portfolio_df['portfolio_long'] = portfolio_df['portfolio_long_pct'].pct_change()
+portfolio_df['portfolio_short'] = portfolio_df['portfolio_short_pct'].pct_change()
+portfolio_df['portfolio_after_costs'] = portfolio_df['portfolio_pct_after_costs'].pct_change()
 
 
 '''--- Risk free rate ---'''
@@ -31,19 +31,35 @@ benchmark_df = benchmark_df.loc[setup.test_start_date:setup.test_end_date]
 portfolio_df['benchmark'] = benchmark_df['Close'].pct_change()
 
 
-'''--- Alpha ---'''
-# Calculate average returns
-average_portfolio_return = portfolio_df['portfolio'].mean()
-average_risk_free_return = portfolio_df['riskfree_daily'].mean()
-average_benchmark_return = portfolio_df['benchmark'].mean()
+'''--- Annualised returns ---'''
+# Calculate the annualised return of the portfolio
 
+# Calculate average returns
+average_daily_portfolio_return = portfolio_df['portfolio'].mean()
+avererage_daily_long_return = portfolio_df['portfolio_long'].mean()
+average_daily_short_return = portfolio_df['portfolio_short'].mean()
+
+average_daily_risk_free_return = portfolio_df['riskfree_daily'].mean()
+average_daily_benchmark_return = portfolio_df['benchmark'].mean()
+
+# Calculate the annualised return
+trading_days = 252
+
+annualised_portfolio_return = (1 + average_daily_portfolio_return)**trading_days - 1
+annualised_long_return = (1 + avererage_daily_long_return)**trading_days - 1
+annualised_short_return = (1 + average_daily_short_return)**trading_days - 1
+
+annualised_risk_free_return = (1 + average_daily_risk_free_return)**trading_days - 1
+annualised_benchmark_return = (1 + average_daily_benchmark_return)**trading_days - 1
+
+'''--- Alpha ---'''
 # Calculate the portfolio's beta
 covariance = portfolio_df['portfolio'].cov(portfolio_df['benchmark'])
 benchmark_variance = portfolio_df['benchmark'].var()
 beta = covariance / benchmark_variance
 
 # Calculate Jensen's Alpha
-jensens_alpha = average_portfolio_return - (average_risk_free_return + beta * (average_benchmark_return - average_risk_free_return))
+jensens_alpha = annualised_portfolio_return - (annualised_risk_free_return + beta * (annualised_benchmark_return - annualised_risk_free_return))
 
 print("Jensen's Alpha:", jensens_alpha)
 
@@ -54,9 +70,10 @@ excess_returns = portfolio_df['portfolio'] - portfolio_df['riskfree_daily']
 
 # Calculate the standard deviation of the portfolio's returns
 std_dev = excess_returns.std()
+annualised_std_dev = std_dev * (trading_days)**0.5
 
 # Calculate the Sharpe Ratio
-sharpe_ratio = excess_returns.mean() / std_dev
+sharpe_ratio = (annualised_portfolio_return - annualised_risk_free_return) / annualised_std_dev
 
 print("Sharpe Ratio:", sharpe_ratio)
 
