@@ -100,6 +100,7 @@ def calculate_stock_return(ticker, position, enter_date, current_date, is_tradin
 
     if is_trading:
         stock_return_after_costs = stock_return - trading_costs
+        portfolio.total_trades += 1
     else:
         stock_return_after_costs = stock_return
 
@@ -189,6 +190,8 @@ for index, date in enumerate(all_trading_dates):
     
 
 # Save the portfolio dataframe to a csv file
+portfolio_df.at[0, 'total_trades'] = portfolio.total_trades
+
 create_folder(f"portfolios")
 portfolio_df.to_csv(f"portfolios/{setup.test_tickerslist}.csv")
 exit()
