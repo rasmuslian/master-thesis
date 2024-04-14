@@ -48,10 +48,10 @@ def generate_graph(data, output_path):
 
 
 def generate_data(type, start_date, end_date, ticker_symbol):
-    if type == 'train':
-        tickerlist = setup.train_tickerslist
-    else:
+    if type == 'test':
         tickerlist = setup.test_tickerslist
+    else:
+        tickerlist = setup.train_tickerslist
 
     # Read the CSV data
     data_path_type = type

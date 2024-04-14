@@ -193,7 +193,7 @@ for index, date in enumerate(all_trading_dates):
 portfolio_df.at[0, 'total_trades'] = portfolio.total_trades
 
 create_folder(f"portfolios")
-portfolio_df.to_csv(f"portfolios/{setup.test_tickerslist}.csv")
+portfolio_df.to_csv(f"portfolios/{setup.train_tickerslist}_{setup.test_tickerslist}.csv")
 exit()
 
 print(f"Portfolio percentage after costs: {'{:.2f}'.format((portfolio.portfolio_percentage_after_costs - 1) * 100)}%, Total trades: {portfolio.total_trades}")
