@@ -90,7 +90,11 @@ def calculate_stock_return(ticker, position, enter_date, current_date, is_tradin
         data['Date'] = pd.to_datetime(data['Date'], utc=True)
         data.set_index('Date', inplace=True)
         enter_price = data.loc[enter_date]['Open']
-        exit_price = data.loc[current_date]['Close']
+        try:
+            exit_price = data.loc[current_date]['Close']
+        except:
+            print(f"Could not find exit price for {ticker} on {current_date}")
+            exit_price = enter_price
 
     
     if position == 'long':

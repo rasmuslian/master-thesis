@@ -5,9 +5,15 @@ from utils import create_folder
 create_folder("portfolio_data/benchmarks")
 
 match setup.test_tickerslist:
-    case 'test1' | 'test2' | 'test3' | 'sp500':
+    case 'test' | 'sp500':
         benchmark = '^SPX'
-    case 'stockallshares' | 'omxlarge' | 'omxmid' | 'omxsmall':
+    case 'stockallshares':
+        benchmark = '^OMXSPI'
+    case 'omxlarge':
+        benchmark = '^OMXSPI'
+    case 'omxmid':
+        benchmark = '^OMXSPI'
+    case 'omxsmall':
         benchmark = '^OMXSPI'
     case 'firstnorth':
         benchmark = '^FNSESEKPI'

@@ -16,15 +16,20 @@ test_end_date = '2023-12-31'
 # validate_ticker_trading_base = 'AAPL'
 # test_ticker_trading_base = 'AAPL'
 
-train_tickerslist = 'sp500'
-test_tickerslist = 'firstnorth'
+train_tickerslist = 'stockallshares'
+test_tickerslist = 'omxlarge'
 
 # Tickers that exist the whole period, to ensure date consistency
-train_ticker_trading_base = 'AAPL'
-validate_ticker_trading_base = 'AAPL'
-# train_ticker_trading_base = 'ABB.ST'
-# validate_ticker_trading_base = 'ABB.ST'
-test_ticker_trading_base = 'ADDV-A.ST'
+
+train_ticker_trading_base = 'AAPL' # sp500
+# train_ticker_trading_base = 'ABB.ST' # stockallshares
+
+validate_ticker_trading_base = 'AAPL' # sp500
+# validate_ticker_trading_base = 'ABB.ST' # stockallshares
+
+# test_ticker_trading_base = 'ADDV-A.ST' # firstnorth
+# test_ticker_trading_base = 'HEBA-B.ST' # omxmid
+test_ticker_trading_base = 'ABB.ST' # omxlarge
 
 data_interval = '1d'
 data_groupby = 5
