@@ -3,10 +3,8 @@ import setup
 
 '''--- Portfolio ---'''
 
-train_tickerslist = 'stockallshares'
-test_tickerslist = 'omxlarge'
-# train_tickerslist = setup.train_tickerslist
-# test_tickerslist = setup.test_tickerslist
+train_tickerslist = setup.train_tickerslist
+test_tickerslist = setup.test_tickerslist
 
 # Import csv from portfolios/{setup.tickeslist}.csv
 portfolio_df = pd.read_csv(f"portfolios/{train_tickerslist}_{test_tickerslist}.csv", index_col=0)
@@ -18,7 +16,7 @@ portfolio_df = portfolio_df.rename(columns={'portfolio_short_pct': 's_pct'})
 portfolio_df = portfolio_df.rename(columns={'portfolio_pct_after_costs': 'pac_pct'})
 
 # Move columns to this order > p_pct, l_pct, s_pct, pac_pct
-portfolio_df = portfolio_df[['p_pct', 'l_pct', 's_pct', 'pac_pct']]
+portfolio_df = portfolio_df[['p_pct', 'l_pct', 's_pct', 'pac_pct', 'total_trades']]
 
 
 # Make a new column called daily_return
