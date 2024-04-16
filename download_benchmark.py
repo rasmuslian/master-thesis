@@ -4,7 +4,9 @@ from utils import create_folder
 
 create_folder("portfolio_data/benchmarks")
 
-match setup.test_tickerslist:
+test_tickerslist = setup.test_tickerslist
+
+match test_tickerslist:
     case 'test' | 'sp500':
         benchmark = '^SPX'
     case 'stockallshares':
@@ -21,4 +23,4 @@ match setup.test_tickerslist:
 data = yf.download(benchmark, start=setup.test_start_date, end=setup.test_end_date, interval='1d')
 
 # Save data to a CSV file
-data.to_csv(f"portfolio_data/benchmarks/{setup.test_tickerslist}.csv")
+data.to_csv(f"portfolio_data/benchmarks/{test_tickerslist}.csv")

@@ -194,7 +194,7 @@ for index, date in enumerate(all_trading_dates):
     
 
 # Save the portfolio dataframe to a csv file
-portfolio_df.at[0, 'total_trades'] = portfolio.total_trades
+portfolio_df.loc[portfolio_df.index[0], 'total_trades'] = portfolio.total_trades
 
 create_folder(f"portfolios")
 portfolio_df.to_csv(f"portfolios/{setup.train_tickerslist}_{setup.test_tickerslist}.csv")
