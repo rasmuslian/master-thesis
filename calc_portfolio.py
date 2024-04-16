@@ -3,6 +3,8 @@ import setup
 
 '''--- Portfolio ---'''
 
+# train_tickerslist = 'stockallshares'
+# test_tickerslist = 'stockallshares'
 train_tickerslist = setup.train_tickerslist
 test_tickerslist = setup.test_tickerslist
 
@@ -14,6 +16,9 @@ portfolio_df = portfolio_df.rename(columns={'portfolio_pct': 'p_pct'})
 portfolio_df = portfolio_df.rename(columns={'portfolio_long_pct': 'l_pct'})
 portfolio_df = portfolio_df.rename(columns={'portfolio_short_pct': 's_pct'})
 portfolio_df = portfolio_df.rename(columns={'portfolio_pct_after_costs': 'pac_pct'})
+
+# Add 'total_trades' column
+portfolio_df['total_trades'] = ''
 
 # Move columns to this order > p_pct, l_pct, s_pct, pac_pct
 portfolio_df = portfolio_df[['p_pct', 'l_pct', 's_pct', 'pac_pct', 'total_trades']]
@@ -67,11 +72,16 @@ pac_return_ann = (1 + avg_daily_pac_return)**trading_days - 1
 ann_risk_free_return = (1 + avg_daily_risk_free_return)**trading_days - 1
 ann_benchmark_return = (1 + avg_daily_benchmark_return)**trading_days - 1
 
+# Calculate the ann return of the benchmark
+benchmark_return_ann = (1 + portfolio_df['benchmark'].mean())**trading_days - 1
+
 # Add the ann returns to the dataframe as new columns with one row
 portfolio_df.loc[portfolio_df.index[0], 'p_return_ann'] = p_return_ann
 portfolio_df.loc[portfolio_df.index[0], 'l_return_ann'] = l_return_ann
 portfolio_df.loc[portfolio_df.index[0], 's_return_ann'] = s_return_ann
 portfolio_df.loc[portfolio_df.index[0], 'pac_return_ann'] = pac_return_ann
+
+portfolio_df.loc[portfolio_df.index[0], 'benchmark_return_ann'] = benchmark_return_ann
 
 
 '''--- Alpha ---'''
