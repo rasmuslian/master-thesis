@@ -3,8 +3,8 @@ import setup
 
 '''--- Portfolio ---'''
 
-# train_tickerslist = 'stockallshares'
-# test_tickerslist = 'stockallshares'
+# train_tickerslist = 'sp500'
+# test_tickerslist = 'omxmid'
 train_tickerslist = setup.train_tickerslist
 test_tickerslist = setup.test_tickerslist
 

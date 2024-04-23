@@ -1,3 +1,0 @@
-model_name,accuracy,random_accuracy,train_data,test_data,train_graph_feat,test_graph_feat,epochs,benchmark_date
-model_feb01_usa_tf_efficientnet_b7_ns_ep1_bs32_lr0001,60.42,56.25,10_large_us_1d/grp5/ma20_2021-01-01to2022-12-31,10_large_us_2023-01-01to2023-12-31,1d/grp5/ma20,1d/grp5/ma20,max2actusa,2024-02-15 13:40:48
-model_epkazv__actep2_mar07-2237_usa10_1d_efficientnet_b4_maxep1000_bs128_lr0001,51.24999999999999,52.400000000000006,usa10 2016-01-01_2021-12-31,usa10 2022-01-01_2023-12-31,1d/grp5/ma20,1d/grp5/ma20,max1000actep2,2024-03-08 08:38:37

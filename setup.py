@@ -8,15 +8,8 @@ validate_end_date = '2021-12-31'
 test_start_date = '2022-01-01'
 test_end_date = '2023-12-31'
 
-# train_tickerslist = 'test3'
-# test_tickerslist = 'test3'
-
-# # Tickers that exist the whole period, to ensure date consistency
-# train_ticker_trading_base = 'AAPL'
-# validate_ticker_trading_base = 'AAPL'
-# test_ticker_trading_base = 'AAPL'
-
-train_tickerslist = 'stockallshares'
+# Tickers list
+train_tickerslist = 'sp500'
 test_tickerslist = 'omxlarge'
 
 # Tickers that exist the whole period, to ensure date consistency
@@ -42,5 +35,5 @@ batch_size = 32
 learning_rate = 0.001
 
 # Test model
-test_model_name = 'model_oburmo__actep6_apr06-0435_stockallshares_1d_tf_efficientnet_b7_ns_maxep100_bs32_lr0001'
+test_model_name = 'model_zwicde__actep6_apr20-1330_sp500_1d_tf_efficientnet_b7_ns_maxep100_bs32_lr0001'
 
