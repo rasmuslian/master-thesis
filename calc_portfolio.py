@@ -3,10 +3,10 @@ import setup
 
 '''--- Portfolio ---'''
 
-# train_tickerslist = 'sp500'
-# test_tickerslist = 'omxmid'
-train_tickerslist = setup.train_tickerslist
-test_tickerslist = setup.test_tickerslist
+train_tickerslist = 'sp500'
+test_tickerslist = 'omxlarge'
+# train_tickerslist = setup.train_tickerslist
+# test_tickerslist = setup.test_tickerslist
 
 # Import csv from portfolios/{setup.tickeslist}.csv
 portfolio_df = pd.read_csv(f"portfolios/{train_tickerslist}_{test_tickerslist}.csv", index_col=0)
