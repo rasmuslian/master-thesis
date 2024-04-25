@@ -1,10 +1,14 @@
 import pandas as pd
 import setup
+import numpy as np
+import statsmodels.regression.linear_model as sm
+import statsmodels.tools.tools as ct
+import csv
 
 '''--- Portfolio ---'''
 
-train_tickerslist = 'sp500'
-test_tickerslist = 'omxlarge'
+train_tickerslist = 'stockallshares'
+test_tickerslist = 'firstnorth'
 # train_tickerslist = setup.train_tickerslist
 # test_tickerslist = setup.test_tickerslist
 
@@ -85,33 +89,64 @@ portfolio_df.loc[portfolio_df.index[0], 'benchmark_return_ann'] = benchmark_retu
 
 
 '''--- Alpha ---'''
-def calculate_alpha(portfolio, benchmark, rp):
-    # Calculate the portfolio's beta
-    covariance = portfolio.cov(benchmark)
-    benchmark_variance = portfolio.var()
-    beta = covariance / benchmark_variance
+# def calculate_alpha(portfolio, benchmark, rp):
+#     # Calculate the portfolio's beta
+#     covariance = portfolio.cov(benchmark)
+#     benchmark_variance = portfolio.var()
+#     beta = covariance / benchmark_variance
 
-    # Calculate Jensen's Alpha
-    jensens_alpha = rp - (ann_risk_free_return + beta * (ann_benchmark_return - ann_risk_free_return))
+#     # Calculate Jensen's Alpha
+#     jensens_alpha = rp - (ann_risk_free_return + beta * (ann_benchmark_return - ann_risk_free_return))
 
-    return jensens_alpha
+#     return jensens_alpha
 
-p_alpha = calculate_alpha(portfolio_df['p'], portfolio_df['benchmark'], p_return_ann)
-l_alpha = calculate_alpha(portfolio_df['l'], portfolio_df['benchmark'], l_return_ann)
-s_alpha = calculate_alpha(portfolio_df['s'], portfolio_df['benchmark'], s_return_ann)
-pac_alpha = calculate_alpha(portfolio_df['pac'], portfolio_df['benchmark'], pac_return_ann)
+# p_alpha = calculate_alpha(portfolio_df['p'], portfolio_df['benchmark'], p_return_ann)
+# l_alpha = calculate_alpha(portfolio_df['l'], portfolio_df['benchmark'], l_return_ann)
+# s_alpha = calculate_alpha(portfolio_df['s'], portfolio_df['benchmark'], s_return_ann)
+# pac_alpha = calculate_alpha(portfolio_df['pac'], portfolio_df['benchmark'], pac_return_ann)
 
-# Add the alpha to the dataframe as new columns with one row
-portfolio_df.loc[portfolio_df.index[0], 'p_alpha'] = p_alpha
-portfolio_df.loc[portfolio_df.index[0], 'l_alpha'] = l_alpha
-portfolio_df.loc[portfolio_df.index[0], 's_alpha'] = s_alpha
-portfolio_df.loc[portfolio_df.index[0], 'pac_alpha'] = pac_alpha
+# # Add the alpha to the dataframe as new columns with one row
+# portfolio_df.loc[portfolio_df.index[0], 'p_alpha'] = p_alpha
+# portfolio_df.loc[portfolio_df.index[0], 'l_alpha'] = l_alpha
+# portfolio_df.loc[portfolio_df.index[0], 's_alpha'] = s_alpha
+# portfolio_df.loc[portfolio_df.index[0], 'pac_alpha'] = pac_alpha
 
+alpha_pac_df = pd.DataFrame(columns=['Rp-Rf', 'Rm-Rf'])
+alpha_pac_df['Rp-Rf'] = portfolio_df['pac'] - portfolio_df['riskfree_daily']
+alpha_pac_df['Rm-Rf'] = portfolio_df['benchmark'] - portfolio_df['riskfree_daily']
+
+# Read the trading dates CSV file
+with open(f"stock_dates/test/{test_tickerslist}.csv", 'r', encoding="utf-8") as file:
+    reader = csv.DictReader(file)
+    latest_dates = [row['latest_date'] for row in reader]
+# Get the second to last latest_dates
+latest_date = latest_dates[-2]
+
+alpha_pac_df = alpha_pac_df.loc[setup.test_start_date:latest_date]
+
+# remove rows with NaN in Rp-Rf
+alpha_pac_df = alpha_pac_df.dropna()
+
+alpha_pac_df = ct.add_constant(alpha_pac_df)
+
+# Perform the OLS regression
+model = sm.OLS(alpha_pac_df['Rp-Rf'], alpha_pac_df[['const', 'Rm-Rf']])
+# model = sm.OLS(alpha_pac_df['Rp-Rf'], alpha_pac_df['Rm-Rf'])
+
+results = model.fit()
+# Change to 95% confidence interval for the ols output
+
+# Print the summary
+summary = results.summary2(alpha=0.05, float_format='%.8f')
+
+summary.tables[0].to_csv(f"portfolios/{train_tickerslist}_{test_tickerslist}_reg.csv")
+summary.tables[1].to_csv(f"portfolios/{train_tickerslist}_{test_tickerslist}_reg.csv", mode='a')
+summary.tables[2].to_csv(f"portfolios/{train_tickerslist}_{test_tickerslist}_reg.csv", mode='a')
 
 '''--- Sharpe ---'''
 def calculate_sharpe(portfolio, rp):
     # Calculate the excess returns of the portfolio
-    excess_returns = portfolio - portfolio_df['riskfree_daily']
+    excess_returns = portfolio - portfolio_df['riskfree_daily'] # ! TODO FIX DATES ON THIS SHARPE CALC
 
     # Calculate the standard deviation of the portfolio's returns
     std_dev = excess_returns.std()

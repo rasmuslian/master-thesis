@@ -80,8 +80,12 @@ def rebalance_portfolio(stock_graph_start_date, enter_date):
     bottom_decile = stocks[-int(len(stocks) * 0.1):]
 
     # Update the portfolio
+    portfolio.prev_long = portfolio.curr_long
+    portfolio.prev_short = portfolio.curr_short
+
     portfolio.curr_long = top_decile
     portfolio.curr_short = bottom_decile
+
 
 def calculate_stock_return(ticker, position, enter_date, current_date, is_trading):
     with open(f"stock_data/test/{setup.test_tickerslist}/{ticker}.csv", 'r', encoding="utf-8") as file:
@@ -118,8 +122,11 @@ def calculate_stocks_return(curr_stocks, prev_stocks, position, close_trades):
     for stock in curr_stocks:
         # Checks if stock is in current portfolio
         is_trading = close_trades
-        if stock in prev_stocks:
-            is_trading = False
+        # If stock.ticker exists in somewhere in prev_stocks[i].ticker, then is_trading = False
+        for prev_stock in prev_stocks:
+            if stock.ticker in prev_stock.ticker:
+                is_trading = False
+                break
 
         stock_return, stock_return_after_costs = calculate_stock_return(stock.ticker, position, stock.enter_date, date, is_trading)
         total_return += stock_return
@@ -178,6 +185,8 @@ for index, date in enumerate(all_trading_dates):
         portfolio.after_costs_base_pct = portfolio.pct_after_costs
         portfolio.long_base_pct = portfolio.long_pct
         portfolio.short_base_pct = portfolio.short_pct
+
+        print(f"Nr of trades: {portfolio.total_trades}")
     else:
         portfolio.pct = portfolio.base_pct + total_return
         portfolio.pct_after_costs = portfolio.after_costs_base_pct + total_return_after_costs
