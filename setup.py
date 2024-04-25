@@ -10,7 +10,7 @@ test_end_date = '2023-12-31'
 
 # Tickers list
 train_tickerslist = 'stockallshares'
-test_tickerslist = 'omxlarge'
+test_tickerslist = 'stockallshares'
 
 # Tickers that exist the whole period, to ensure date consistency
 
