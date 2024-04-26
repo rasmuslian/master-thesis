@@ -10,7 +10,7 @@ import csv
 '''--- Portfolio ---'''
 
 train_tickerslist = 'stockallshares'
-test_tickerslist = 'firstnorth'
+test_tickerslist = 'stockallshares'
 # train_tickerslist = setup.train_tickerslist
 # test_tickerslist = setup.test_tickerslist
 
