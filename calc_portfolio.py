@@ -9,10 +9,10 @@ import csv
 
 '''--- Portfolio ---'''
 
-train_tickerslist = 'stockallshares'
-test_tickerslist = 'stockallshares'
-# train_tickerslist = setup.train_tickerslist
-# test_tickerslist = setup.test_tickerslist
+# train_tickerslist = 'stockallshares'
+# test_tickerslist = 'stockallshares'
+train_tickerslist = setup.train_tickerslist
+test_tickerslist = setup.test_tickerslist
 
 # Import csv from portfolios/{setup.tickeslist}.csv
 portfolio_df = pd.read_csv(f"portfolios/{train_tickerslist}_{test_tickerslist}.csv", index_col=0)
