@@ -51,7 +51,7 @@ portfolio_df['riskfree_daily'] = (1 + portfolio_df['riskfree'])**(1/360) - 1
 
 
 '''--- Benchmarks ---'''
-benchmark_df = pd.read_csv(f"portfolio_data/benchmarks/{test_tickerslist}.csv", index_col=0)
+benchmark_df = pd.read_csv(f"portfolio_data/equal_weight_benchmarks/{test_tickerslist}.csv", index_col=0)
 benchmark_df = benchmark_df.loc[setup.test_start_date:setup.test_end_date]
 
 portfolio_df['benchmark'] = benchmark_df['Close'].pct_change()
