@@ -3,7 +3,7 @@ import json
 import pandas as pd
 from utils import create_folder
 
-benchmark = 'omxsmall'
+benchmark = 'sp500'
 
 class EqualWeightBenchmark:
     def __init__(self):        
